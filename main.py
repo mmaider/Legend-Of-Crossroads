@@ -1,7 +1,7 @@
 import pygame
 import random
 from os import path
-
+pygame.font.init()
 
 img_dir = path.join(path.dirname(__file__), 'img')
 WIDTH = 600
@@ -30,6 +30,7 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.centerx = WIDTH / 2
         self.rect.bottom = HEIGHT - 10
+        self.life = 10
         self.speedx = 0
         self.speedy = 0
 
@@ -127,7 +128,8 @@ while running:
 
     hits = pygame.sprite.spritecollide(player, mobs, False)
     if hits:
-        running = False
+        player.life -= 1
+
 
     screen.fill(BLACK)
     all_sprites.draw(screen)
