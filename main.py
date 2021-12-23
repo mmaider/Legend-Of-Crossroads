@@ -22,6 +22,7 @@ screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Floors")
 clock = pygame.time.Clock()
 
+
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
@@ -130,9 +131,15 @@ while running:
     if hits:
         player.life -= 1
 
-
+    font = pygame.font.Font(None, 72)
     screen.fill(BLACK)
     all_sprites.draw(screen)
+    text = font.render(
+        str(player.life), True, WHITE)
+    place = text.get_rect(
+        center=(100, 100))
+    screen.blit(text, place)
     pygame.display.flip()
+
 
 pygame.quit()
