@@ -26,8 +26,8 @@ clock = pygame.time.Clock()
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.transform.scale(player_img, (100, 200))
-        self.image.set_colorkey(BLACK)
+        self.image = pygame.Surface((30, 40))
+        self.image.fill(GREEN)
         self.rect = self.image.get_rect()
         self.rect.centerx = WIDTH / 2
         self.rect.bottom = HEIGHT - 10
@@ -35,7 +35,7 @@ class Player(pygame.sprite.Sprite):
         self.speedx = 0
         self.speedy = 0
 
-    def update(self):
+    def update(self, *args):
         self.speedx = 0
         self.speedy = 0
         keystate = pygame.key.get_pressed()
@@ -70,17 +70,21 @@ class Mob(pygame.sprite.Sprite):
         self.image.fill(RED)
         self.rect = self.image.get_rect()
         self.rect.x = random.randrange(WIDTH - self.rect.width)
-        self.rect.y = random.randrange(-100, -40)
-        self.speedy = random.randrange(1, 8)
-        self.speedx = random.randrange(-3, 3)
+        self.rect.y = -40
+        self.speed = random.randrange(1, 6)
 
-    def update(self):
-        self.rect.x += self.speedx
-        self.rect.y += self.speedy
-        if self.rect.top > HEIGHT + 10 or self.rect.left < -25 or self.rect.right > WIDTH + 20:
+    def update(self, *args):
+        if self.rect.x < args[0]:
+            self.rect.x += self.speed
+        if self.rect.x > args[0]:
+            self.rect.x -= self.speed
+        if self.rect.y < args[1]:
+            self.rect.y += self.speed
+        if self.rect.y > args[1]:
+            self.rect.y -= self.speed
+        if self.rect.top > HEIGHT + 40 or self.rect.left < -10 or self.rect.right > WIDTH + 10:
             self.rect.x = random.randrange(WIDTH - self.rect.width)
-            self.rect.y = random.randrange(-100, -40)
-            self.speedy = random.randrange(1, 8)
+            self.rect.y = -40
 
 class Bullet(pygame.sprite.Sprite):
     def __init__(self, x, y):
@@ -92,18 +96,19 @@ class Bullet(pygame.sprite.Sprite):
         self.rect.centerx = x
         self.speedy = -10
 
-    def update(self):
+    def update(self, *args):
         self.rect.y += self.speedy
         if self.rect.bottom < 0:
             self.kill()
 
+
 all_sprites = pygame.sprite.Group()
-player_img = pygame.image.load(path.join(img_dir, "whiteboi1.png")).convert()
+#player_img = pygame.image.load(path.join(img_dir, "whiteboi1.png")).convert()
 mobs = pygame.sprite.Group()
 bullets = pygame.sprite.Group()
 player = Player()
 all_sprites.add(player)
-for i in range(8):
+for i in range(3):
     m = Mob()
     all_sprites.add(m)
     mobs.add(m)
@@ -119,18 +124,25 @@ while running:
             if event.key == pygame.K_SPACE:
                 player.shoot()
 
-    all_sprites.update()
+    all_sprites.update(player.rect.x, player.rect.y)
 
     hits = pygame.sprite.groupcollide(mobs, bullets, True, True)
     for hit in hits:
-        m = Mob()
-        all_sprites.add(m)
-        mobs.add(m)
+        for i in range(random.randrange(0, 3, 1)):
+            m = Mob()
+            all_sprites.add(m)
+            mobs.add(m)
 
-    hits = pygame.sprite.spritecollide(player, mobs, False)
+    hits = pygame.sprite.spritecollide(player, mobs, True)
     if hits:
         player.life -= 1
+        for i in range(random.randrange(0, 5, 1)):
+            m = Mob()
+            all_sprites.add(m)
+            mobs.add(m)
 
+    if player.life == 0:
+        running = False
     font = pygame.font.Font(None, 72)
     screen.fill(BLACK)
     all_sprites.draw(screen)
