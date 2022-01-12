@@ -1,6 +1,7 @@
 import pygame
 import random
 from os import path
+
 pygame.font.init()
 
 img_dir = path.join(path.dirname(__file__), 'img')
@@ -14,7 +15,6 @@ RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
 YELLOW = (255, 255, 0)
-
 
 pygame.init()
 pygame.mixer.init()
@@ -58,10 +58,20 @@ class Player(pygame.sprite.Sprite):
         if self.rect.top < 0:
             self.rect.top = 0
 
-    def shoot(self):
-        bullet = Bullet(self.rect.centerx, self.rect.top)
+    def shoot(self, mx, my):
+        print(mx, my, self.rect.x, self.rect.y)
+        if my > self.rect.centery:
+            ky = 1
+        elif my == self.rect.centery:
+            ky = 0
+        else:
+            ky = -1
+        kx = 1/(((600-my)-(600-self.rect.y)) / (mx - self.rect.x))
+        print(kx, ky)
+        bullet = Bullet(self.rect.centerx, self.rect.top, kx, ky)
         all_sprites.add(bullet)
         bullets.add(bullet)
+
 
 class Mob(pygame.sprite.Sprite):
     def __init__(self):
@@ -86,24 +96,27 @@ class Mob(pygame.sprite.Sprite):
             self.rect.x = random.randrange(WIDTH - self.rect.width)
             self.rect.y = -40
 
+
 class Bullet(pygame.sprite.Sprite):
-    def __init__(self, x, y):
+    def __init__(self, x, y, kx, ky):
         pygame.sprite.Sprite.__init__(self)
         self.image = pygame.Surface((10, 20))
         self.image.fill(YELLOW)
         self.rect = self.image.get_rect()
         self.rect.bottom = y
         self.rect.centerx = x
-        self.speedy = -10
+        self.speedx = 10 * kx
+        self.speedy = 10 * ky
 
     def update(self, *args):
         self.rect.y += self.speedy
+        self.rect.x += self.speedx
         if self.rect.bottom < 0:
             self.kill()
 
 
 all_sprites = pygame.sprite.Group()
-#player_img = pygame.image.load(path.join(img_dir, "whiteboi1.png")).convert()
+# player_img = pygame.image.load(path.join(img_dir, "whiteboi1.png")).convert()
 mobs = pygame.sprite.Group()
 bullets = pygame.sprite.Group()
 player = Player()
@@ -113,7 +126,6 @@ for i in range(3):
     all_sprites.add(m)
     mobs.add(m)
 
-
 running = True
 while running:
     clock.tick(FPS)
@@ -122,24 +134,25 @@ while running:
             running = False
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE:
-                player.shoot()
+                mouse_x, mouse_y = pygame.mouse.get_pos()
+                player.shoot(mouse_x, mouse_y)
 
     all_sprites.update(player.rect.x, player.rect.y)
 
     hits = pygame.sprite.groupcollide(mobs, bullets, True, True)
-    for hit in hits:
-        for i in range(random.randrange(0, 3, 1)):
-            m = Mob()
-            all_sprites.add(m)
-            mobs.add(m)
+    # for hit in hits:
+    #     for i in range(random.randrange(0, 3, 1)):
+    #         m = Mob()
+    #         all_sprites.add(m)
+    #         mobs.add(m)
 
     hits = pygame.sprite.spritecollide(player, mobs, True)
-    if hits:
-        player.life -= 1
-        for i in range(random.randrange(0, 5, 1)):
-            m = Mob()
-            all_sprites.add(m)
-            mobs.add(m)
+    # if hits:
+    #     player.life -= 1
+    #     for i in range(random.randrange(0, 3, 1)):
+    #         m = Mob()
+    #         all_sprites.add(m)
+    #         mobs.add(m)
 
     if player.life == 0:
         running = False
@@ -152,6 +165,5 @@ while running:
         center=(100, 100))
     screen.blit(text, place)
     pygame.display.flip()
-
 
 pygame.quit()
