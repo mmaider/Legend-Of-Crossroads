@@ -59,15 +59,22 @@ class Player(pygame.sprite.Sprite):
             self.rect.top = 0
 
     def shoot(self, mx, my):
-        print(mx, my, self.rect.x, self.rect.y)
-        if my > self.rect.centery:
+        # print(mx, my, self.rect.x, self.rect.y)
+
+        if my > self.rect.y:
             ky = 1
-        elif my == self.rect.centery:
+        elif my == self.rect.y:
             ky = 0
         else:
             ky = -1
-        kx = 1/(((600-my)-(600-self.rect.y)) / (mx - self.rect.x))
-        print(kx, ky)
+        try:
+            if ky == -1:
+                kx = 1 / (((600 - my) - (600 - self.rect.y)) / (mx - self.rect.x))
+            else:
+                kx = -1 / (((600 - my) - (600 - self.rect.y)) / (mx - self.rect.x))
+        except ZeroDivisionError:
+            kx = 1
+        # print(kx, ky)
         bullet = Bullet(self.rect.centerx, self.rect.top, kx, ky)
         all_sprites.add(bullet)
         bullets.add(bullet)
@@ -140,19 +147,19 @@ while running:
     all_sprites.update(player.rect.x, player.rect.y)
 
     hits = pygame.sprite.groupcollide(mobs, bullets, True, True)
-    # for hit in hits:
-    #     for i in range(random.randrange(0, 3, 1)):
-    #         m = Mob()
-    #         all_sprites.add(m)
-    #         mobs.add(m)
+    for hit in hits:
+        for i in range(random.randrange(0, 3, 1)):
+            m = Mob()
+            all_sprites.add(m)
+            mobs.add(m)
 
     hits = pygame.sprite.spritecollide(player, mobs, True)
-    # if hits:
-    #     player.life -= 1
-    #     for i in range(random.randrange(0, 3, 1)):
-    #         m = Mob()
-    #         all_sprites.add(m)
-    #         mobs.add(m)
+    if hits:
+        player.life -= 1
+        for i in range(random.randrange(0, 3, 1)):
+            m = Mob()
+            all_sprites.add(m)
+            mobs.add(m)
 
     if player.life == 0:
         running = False
