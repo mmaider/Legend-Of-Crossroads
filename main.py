@@ -29,8 +29,9 @@ class Player(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.frames = []
         self.cut_sheet(sheet, columns, rows)
+        self.cur_row = 0
         self.cur_frame = 0
-        self.image = self.frames[self.cur_frame]
+        self.image = self.frames[self.cur_row][self.cur_frame]
         self.rect = self.image.get_rect()
         self.rect.centerx = WIDTH / 2
         self.rect.bottom = HEIGHT - 10
@@ -42,9 +43,10 @@ class Player(pygame.sprite.Sprite):
         self.rect = pygame.Rect(0, 0, sheet.get_width() // columns,
                                 sheet.get_height() // rows)
         for j in range(rows):
+            self.frames.append([])
             for i in range(columns):
                 frame_location = (self.rect.w * i, self.rect.h * j)
-                self.frames.append(sheet.subsurface(pygame.Rect(
+                self.frames[j].append(sheet.subsurface(pygame.Rect(
                     frame_location, self.rect.size)))
 
     def update(self, *args):
@@ -53,12 +55,16 @@ class Player(pygame.sprite.Sprite):
         keystate = pygame.key.get_pressed()
         if keystate[pygame.K_a]:
             self.speedx = -5
-        if keystate[pygame.K_d]:
+            self.cur_row = 1
+        elif keystate[pygame.K_d]:
             self.speedx = 5
+            self.cur_row = 3
         if keystate[pygame.K_w]:
             self.speedy = -5
-        if keystate[pygame.K_s]:
+            self.cur_row = 0
+        elif keystate[pygame.K_s]:
             self.speedy = 5
+            self.cur_row = 2
         self.rect.x += self.speedx
         self.rect.y += self.speedy
         if self.rect.right > WIDTH:
@@ -70,8 +76,8 @@ class Player(pygame.sprite.Sprite):
         if self.rect.top < 0:
             self.rect.top = 0
 
-        self.cur_frame = (self.cur_frame + 1) % len(self.frames)
-        self.image = self.frames[self.cur_frame]
+        self.cur_frame = (self.cur_frame + 1) % len(self.frames[0])
+        self.image = self.frames[self.cur_row][self.cur_frame]
 
     def shoot(self, mx, my):
         # print(mx, my, self.rect.x, self.rect.y)
@@ -96,27 +102,47 @@ class Player(pygame.sprite.Sprite):
 
 
 class Mob(pygame.sprite.Sprite):
-    def __init__(self):
+    def __init__(self, sheet, columns, rows):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.Surface((30, 40))
-        self.image.fill(RED)
+        self.frames = []
+        self.cut_sheet(sheet, columns, rows)
+        self.cur_row = 0
+        self.cur_frame = 0
+        self.image = self.frames[self.cur_row][self.cur_frame]
         self.rect = self.image.get_rect()
         self.rect.x = random.randrange(WIDTH - self.rect.width)
         self.rect.y = -40
         self.speed = random.randrange(1, 6)
 
+    def cut_sheet(self, sheet, columns, rows):
+        self.rect = pygame.Rect(0, 0, sheet.get_width() // columns,
+                                sheet.get_height() // rows)
+        for j in range(rows):
+            self.frames.append([])
+            for i in range(columns):
+                frame_location = (self.rect.w * i, self.rect.h * j)
+                self.frames[j].append(sheet.subsurface(pygame.Rect(
+                    frame_location, self.rect.size)))
+
     def update(self, *args):
         if self.rect.x < args[0]:
             self.rect.x += self.speed
-        if self.rect.x > args[0]:
+            self.cur_row = 2
+        elif self.rect.x > args[0]:
             self.rect.x -= self.speed
+            self.cur_row = 1
         if self.rect.y < args[1]:
             self.rect.y += self.speed
-        if self.rect.y > args[1]:
+            self.cur_row = 0
+        elif self.rect.y > args[1]:
             self.rect.y -= self.speed
+            self.cur_row = 3
         if self.rect.top > HEIGHT + 40 or self.rect.left < -10 or self.rect.right > WIDTH + 10:
             self.rect.x = random.randrange(WIDTH - self.rect.width)
             self.rect.y = -40
+
+        self.cur_frame = (self.cur_frame + 1) % len(self.frames[0])
+        self.image = self.frames[self.cur_row][self.cur_frame]
 
 
 class Bullet(pygame.sprite.Sprite):
@@ -154,16 +180,16 @@ def load_image(name, colorkey=None):
 
 bgimg = pygame.transform.scale(load_image("bg.png"), (WIDTH, HEIGHT))
 playerimage = pygame.transform.scale(load_image("playerimg.png"), (576, 256))
-mobimage = pygame.transform.scale(load_image("mob.png"), (120, 81))
+mobimage = pygame.transform.scale(load_image("mob.png"), (282, 190))
 
 all_sprites = pygame.sprite.Group()
 mobs = pygame.sprite.Group()
 bullets = pygame.sprite.Group()
-player = Player(playerimage, 9, 4, )
+player = Player(playerimage, 9, 4)
 all_sprites.add(player)
 
 for i in range(3):
-    m = Mob()
+    m = Mob(mobimage, 6, 4)
     all_sprites.add(m)
     mobs.add(m)
 
@@ -183,7 +209,7 @@ while running:
     hits = pygame.sprite.groupcollide(mobs, bullets, True, True)
     for hit in hits:
         for i in range(random.randrange(1, 3, 1)):
-            m = Mob()
+            m = Mob(mobimage, 6, 4)
             all_sprites.add(m)
             mobs.add(m)
 
@@ -191,7 +217,7 @@ while running:
     if hits:
         player.life -= 1
         for i in range(random.randrange(1, 3, 1)):
-            m = Mob()
+            m = Mob(mobimage, 6, 4)
             all_sprites.add(m)
             mobs.add(m)
 
