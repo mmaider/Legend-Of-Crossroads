@@ -1,5 +1,6 @@
 import pygame
 import random
+import os
 from os import path
 
 pygame.font.init()
@@ -24,16 +25,27 @@ clock = pygame.time.Clock()
 
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self):
+    def __init__(self, sheet, columns, rows):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.Surface((30, 40))
-        self.image.fill(GREEN)
+        self.frames = []
+        self.cut_sheet(sheet, columns, rows)
+        self.cur_frame = 0
+        self.image = self.frames[self.cur_frame]
         self.rect = self.image.get_rect()
         self.rect.centerx = WIDTH / 2
         self.rect.bottom = HEIGHT - 10
         self.life = 10
         self.speedx = 0
         self.speedy = 0
+
+    def cut_sheet(self, sheet, columns, rows):
+        self.rect = pygame.Rect(0, 0, sheet.get_width() // columns,
+                                sheet.get_height() // rows)
+        for j in range(rows):
+            for i in range(columns):
+                frame_location = (self.rect.w * i, self.rect.h * j)
+                self.frames.append(sheet.subsurface(pygame.Rect(
+                    frame_location, self.rect.size)))
 
     def update(self, *args):
         self.speedx = 0
@@ -57,6 +69,9 @@ class Player(pygame.sprite.Sprite):
             self.rect.bottom = HEIGHT
         if self.rect.top < 0:
             self.rect.top = 0
+
+        self.cur_frame = (self.cur_frame + 1) % len(self.frames)
+        self.image = self.frames[self.cur_frame]
 
     def shoot(self, mx, my):
         # print(mx, my, self.rect.x, self.rect.y)
@@ -122,12 +137,31 @@ class Bullet(pygame.sprite.Sprite):
             self.kill()
 
 
+def load_image(name, colorkey=None):
+    fullname = os.path.join('img', name)
+    try:
+        image = pygame.image.load(fullname)
+    except pygame.error as message:
+        print('Cannot load image:', name)
+        raise SystemExit(message)
+    image = image.convert_alpha()
+    if colorkey is not None:
+        if colorkey == -1:
+            colorkey = image.get_at((0, 0))
+        image.set_colorkey(colorkey)
+    return image
+
+
+bgimg = pygame.transform.scale(load_image("bg.png"), (WIDTH, HEIGHT))
+playerimage = pygame.transform.scale(load_image("playerimg.png"), (576, 256))
+mobimage = pygame.transform.scale(load_image("mob.png"), (120, 81))
+
 all_sprites = pygame.sprite.Group()
-# player_img = pygame.image.load(path.join(img_dir, "whiteboi1.png")).convert()
 mobs = pygame.sprite.Group()
 bullets = pygame.sprite.Group()
-player = Player()
+player = Player(playerimage, 9, 4, )
 all_sprites.add(player)
+
 for i in range(3):
     m = Mob()
     all_sprites.add(m)
@@ -143,12 +177,12 @@ while running:
             if event.key == pygame.K_SPACE:
                 mouse_x, mouse_y = pygame.mouse.get_pos()
                 player.shoot(mouse_x, mouse_y)
-
+    screen.blit(bgimg, (0, 0))
     all_sprites.update(player.rect.x, player.rect.y)
 
     hits = pygame.sprite.groupcollide(mobs, bullets, True, True)
     for hit in hits:
-        for i in range(random.randrange(0, 3, 1)):
+        for i in range(random.randrange(1, 3, 1)):
             m = Mob()
             all_sprites.add(m)
             mobs.add(m)
@@ -156,7 +190,7 @@ while running:
     hits = pygame.sprite.spritecollide(player, mobs, True)
     if hits:
         player.life -= 1
-        for i in range(random.randrange(0, 3, 1)):
+        for i in range(random.randrange(1, 3, 1)):
             m = Mob()
             all_sprites.add(m)
             mobs.add(m)
@@ -164,7 +198,6 @@ while running:
     if player.life == 0:
         running = False
     font = pygame.font.Font(None, 72)
-    screen.fill(BLACK)
     all_sprites.draw(screen)
     text = font.render(
         str(player.life), True, WHITE)
