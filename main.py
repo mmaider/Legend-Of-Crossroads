@@ -178,6 +178,18 @@ def load_image(name, colorkey=None):
     return image
 
 
+def blit_hp(surf, x, y, pct):
+    if pct < 0:
+        pct = 0
+    BAR_LENGTH = 100
+    BAR_HEIGHT = 10
+    fill = (pct / 10) * BAR_LENGTH
+    outline_rect = pygame.Rect(x, y, BAR_LENGTH, BAR_HEIGHT)
+    fill_rect = pygame.Rect(x, y, fill, BAR_HEIGHT)
+    pygame.draw.rect(surf, GREEN, fill_rect)
+    pygame.draw.rect(surf, WHITE, outline_rect, 2)
+
+
 bgimg = pygame.transform.scale(load_image("bg.png"), (WIDTH, HEIGHT))
 playerimage = pygame.transform.scale(load_image("playerimg.png"), (576, 256))
 mobimage = pygame.transform.scale(load_image("mob.png"), (282, 190))
@@ -208,28 +220,26 @@ while running:
 
     hits = pygame.sprite.groupcollide(mobs, bullets, True, True)
     for hit in hits:
-        for i in range(random.randrange(1, 3, 1)):
-            m = Mob(mobimage, 6, 4)
-            all_sprites.add(m)
-            mobs.add(m)
+        m = Mob(mobimage, 6, 4)
+        all_sprites.add(m)
+        mobs.add(m)
 
     hits = pygame.sprite.spritecollide(player, mobs, True)
     if hits:
         player.life -= 1
-        for i in range(random.randrange(1, 3, 1)):
-            m = Mob(mobimage, 6, 4)
-            all_sprites.add(m)
-            mobs.add(m)
+        m = Mob(mobimage, 6, 4)
+        all_sprites.add(m)
+        mobs.add(m)
 
     if player.life == 0:
         running = False
-    font = pygame.font.Font(None, 72)
+    font = pygame.font.Font(None, 32)
     all_sprites.draw(screen)
     text = font.render(
         str(player.life), True, WHITE)
-    place = text.get_rect(
-        center=(100, 100))
+    place = text.get_rect(center=(50, 30))
     screen.blit(text, place)
+    blit_hp(screen, 5, 5, player.life)
     pygame.display.flip()
 
 pygame.quit()
