@@ -296,7 +296,39 @@ def rules_menu():
 
 def main_cycle():
     global running
-    print(1)
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_SPACE:
+                mouse_x, mouse_y = pygame.mouse.get_pos()
+                player.shoot(mouse_x, mouse_y)
+    screen.blit(bgimg, (0, 0))
+    all_sprites.update(player.rect.x, player.rect.y)
+
+    hits = pygame.sprite.groupcollide(mobs, bullets, True, True)
+    for hit in hits:
+        m = Mob(mobimage, 6, 4)
+        all_sprites.add(m)
+        mobs.add(m)
+
+    hits = pygame.sprite.spritecollide(player, mobs, True)
+    if hits:
+        player.life -= 1
+        m = Mob(mobimage, 6, 4)
+        all_sprites.add(m)
+        mobs.add(m)
+
+    if player.life == 0:
+        running = False
+    font = pygame.font.Font(None, 32)
+    all_sprites.draw(screen)
+    text = font.render(
+        str(player.life), True, WHITE)
+    place = text.get_rect(center=(50, 30))
+    screen.blit(text, place)
+    blit_hp(screen, 5, 5, player.life)
+    pygame.display.flip()
 
 
 bgimg = pygame.transform.scale(load_image("bg.png"), (WIDTH, HEIGHT))
