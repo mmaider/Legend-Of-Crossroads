@@ -236,8 +236,13 @@ def main_menu():
                 running = False
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 pos = pygame.mouse.get_pos()
-                menu_running = False
-                rules_running = True
+                if (pos[0] < intro_rect1.right) and (pos[0] > intro_rect1.left) and (pos[1] > intro_rect1.top) and (
+                        pos[1] < intro_rect1.bottom):
+                    menu_running = False
+                    rules_running = True
+                if (pos[0] < intro_rect.right) and (pos[0] > intro_rect.left) and (pos[1] > intro_rect.top) and (
+                        pos[1] < intro_rect.bottom):
+                    menu_running = False
         pygame.display.flip()
         clock.tick(20)
 
@@ -289,10 +294,13 @@ def rules_menu():
                 running = False
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 pos = pygame.mouse.get_pos()
-                menu_running = True
-                rules_running = False
+                if (pos[0] < intro_rect.right) and (pos[0] > intro_rect.left) and (pos[1] > intro_rect.top) and (
+                        pos[1] < intro_rect.bottom):
+                    menu_running = True
+                    rules_running = False
         pygame.display.flip()
         clock.tick(20)
+
 
 def main_cycle():
     global running
