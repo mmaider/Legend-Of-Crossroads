@@ -2,6 +2,7 @@ import pygame
 import random
 import os
 from os import path
+from ini import *
 from classes import *
 
 pygame.font.init()
@@ -161,7 +162,9 @@ def main_cycle():
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE:
                 mouse_x, mouse_y = pygame.mouse.get_pos()
-                player.shoot(mouse_x, mouse_y)
+                bullet = player.shoot(mouse_x, mouse_y)
+                all_sprites.add(bullet)
+                bullets.add(bullet)
     screen.blit(bgimg, (0, 0))
     all_sprites.update(player.rect.x, player.rect.y)
 

@@ -88,8 +88,7 @@ class Player(pygame.sprite.Sprite):
             kx = 1
         # print(kx, ky)
         bullet = Bullet(self.rect.centerx, self.rect.top, kx, ky)
-        all_sprites.add(bullet)
-        bullets.add(bullet)
+        return bullet
 
 
 class Mob(pygame.sprite.Sprite):
