@@ -2,7 +2,6 @@ import pygame
 import random
 import os
 from os import path
-from ini import *
 from classes import *
 
 pygame.font.init()
