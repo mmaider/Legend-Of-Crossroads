@@ -1,44 +1,4 @@
-import pygame
-import random
-import os
-from os import path
-from classes import *
-
-pygame.font.init()
-
-img_dir = path.join(path.dirname(__file__), 'img')
-pygame.init()
-pygame.mixer.init()
-screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Floors")
-clock = pygame.time.Clock()
-
-
-def load_image(name, colorkey=None):
-    fullname = os.path.join('img', name)
-    try:
-        image = pygame.image.load(fullname)
-    except pygame.error as message:
-        print('Cannot load image:', name)
-        raise SystemExit(message)
-    image = image.convert_alpha()
-    if colorkey is not None:
-        if colorkey == -1:
-            colorkey = image.get_at((0, 0))
-        image.set_colorkey(colorkey)
-    return image
-
-
-def blit_hp(surf, x, y, pct):
-    if pct < 0:
-        pct = 0
-    BAR_LENGTH = 100
-    BAR_HEIGHT = 10
-    fill = (pct / 10) * BAR_LENGTH
-    outline_rect = pygame.Rect(x, y, BAR_LENGTH, BAR_HEIGHT)
-    fill_rect = pygame.Rect(x, y, fill, BAR_HEIGHT)
-    pygame.draw.rect(surf, GREEN, fill_rect)
-    pygame.draw.rect(surf, WHITE, outline_rect, 2)
+from game_methods import *
 
 
 def main_menu():
@@ -154,7 +114,7 @@ def rules_menu():
 
 
 def main_cycle():
-    global running
+    global running, lost_running
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
@@ -180,8 +140,8 @@ def main_cycle():
         all_sprites.add(m)
         mobs.add(m)
 
-    if player.life == 0:
-        running = False
+    if player.life <= 0:
+        lost_running = True
     font = pygame.font.Font(None, 32)
     all_sprites.draw(screen)
     text = font.render(
@@ -191,6 +151,57 @@ def main_cycle():
     blit_hp(screen, 5, 5, player.life)
     pygame.display.flip()
 
+
+def game_over():
+    global running, menu_running, lost_running, screen, WIDTH, HEIGHT
+    intro_text = ['ИГРА ОКОНЧЕНА']
+    buttons = ['В главное меню']
+    fon = pygame.transform.scale(load_image('main_back.png'), (WIDTH, HEIGHT))
+    screen.blit(fon, (0, 0))
+    font = pygame.font.SysFont('verdana', 35)
+    text_coord = 30
+    for line in intro_text:
+        string_rendered = font.render(line, 1, (255, 255, 255))
+        intro_rect = string_rendered.get_rect()
+        text_coord += 10
+        intro_rect.top = text_coord
+        intro_rect.x = 10
+        text_coord += intro_rect.height
+        screen.blit(string_rendered, intro_rect)
+
+    font = pygame.font.SysFont('serif', 17)
+    for line in buttons:
+        string_rendered = font.render(line, 1, (255, 255, 255))
+        intro_rect = string_rendered.get_rect()
+        text_coord += 10
+        intro_rect.top = text_coord
+        intro_rect.x = 10
+        text_coord += intro_rect.height
+        screen.blit(string_rendered, intro_rect)
+
+    while lost_running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                lost_running = False
+                running = False
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                pos = pygame.mouse.get_pos()
+                if (pos[0] < intro_rect.right) and (pos[0] > intro_rect.left) and (pos[1] > intro_rect.top) and (
+                        pos[1] < intro_rect.bottom):
+                    lost_running = False
+                    menu_running = True
+        pygame.display.flip()
+        clock.tick(20)
+
+
+pygame.font.init()
+
+img_dir = os.path.join(os.path.dirname(__file__), 'img')
+pygame.init()
+pygame.mixer.init()
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Floors")
+clock = pygame.time.Clock()
 
 bgimg = pygame.transform.scale(load_image("bg.png"), (WIDTH, HEIGHT))
 playerimage = pygame.transform.scale(load_image("playerimg.png"), (576, 256))
@@ -210,6 +221,7 @@ for i in range(3):
 running = True
 menu_running = True
 rules_running = False
+lost_running = False
 
 while running:
     clock.tick(FPS)
@@ -217,6 +229,8 @@ while running:
         main_menu()
     elif rules_running:
         rules_menu()
+    elif lost_running:
+        game_over()
     else:
         main_cycle()
 
