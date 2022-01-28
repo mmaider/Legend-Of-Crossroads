@@ -84,14 +84,19 @@ class Player(pygame.sprite.Sprite):
 class Mob(pygame.sprite.Sprite):
     def __init__(self, sheet, columns, rows):
         pygame.sprite.Sprite.__init__(self)
+        self.rect_arr = [(-10, random.randrange(HEIGHT)),
+                         (random.randrange(WIDTH), -10),
+                         (random.randrange(WIDTH), 610),
+                         (610, random.randrange(HEIGHT))]
         self.frames = []
         self.cut_sheet(sheet, columns, rows)
         self.cur_row = 0
         self.cur_frame = 0
         self.image = self.frames[self.cur_row][self.cur_frame]
         self.rect = self.image.get_rect()
-        self.rect.x = random.randrange(WIDTH - self.rect.width)
-        self.rect.y = -40
+        self.temp = random.randrange(0, 3)
+        self.rect.x = self.rect_arr[self.temp][0]
+        self.rect.y = self.rect_arr[self.temp][1]
         self.speed = random.randrange(1, 6)
 
     def cut_sheet(self, sheet, columns, rows):

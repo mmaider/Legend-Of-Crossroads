@@ -8,14 +8,14 @@ def main_menu():
     rules = ['Правила игры']
     fon = pygame.transform.scale(load_image('main_back.png'), (WIDTH, HEIGHT))
     screen.blit(fon, (0, 0))
-    font = pygame.font.SysFont('verdana', 35)
+    font = pygame.font.SysFont('verdana', 50)
     text_coord = 30
     for line in intro_text:
         string_rendered = font.render(line, 1, (255, 255, 255))
         intro_rect = string_rendered.get_rect()
         text_coord += 10
         intro_rect.top = text_coord
-        intro_rect.x = 10
+        intro_rect.centerx = WIDTH//2
         text_coord += intro_rect.height
         screen.blit(string_rendered, intro_rect)
     font = pygame.font.SysFont('verdana', 20)
@@ -28,8 +28,6 @@ def main_menu():
         print(intro_rect1)
         text_coord += intro_rect1.height
         screen.blit(string_rendered, intro_rect1)
-
-    font = pygame.font.SysFont('serif', 17)
     for line in buttons:
         string_rendered = font.render(line, 1, (255, 255, 255))
         intro_rect = string_rendered.get_rect()
@@ -76,25 +74,25 @@ def rules_menu():
         intro_rect = string_rendered.get_rect()
         text_coord += 10
         intro_rect.top = text_coord
-        intro_rect.x = 10
+        intro_rect.centerx = WIDTH//2
         text_coord += intro_rect.height
         screen.blit(string_rendered, intro_rect)
-    font = pygame.font.SysFont('serif', 20)
+    font = pygame.font.SysFont('verdana', 17)
     for line in rules_text:
-        string_rendered = font.render(line, 1, (230, 230, 230))
-        intro_rect = string_rendered.get_rect()
-        text_coord += 10
-        intro_rect.top = text_coord
-        intro_rect.x = 10
-        text_coord += intro_rect.height
-        screen.blit(string_rendered, intro_rect)
-    font = pygame.font.SysFont('serif', 25)
-    for line in main_text:
         string_rendered = font.render(line, 1, (255, 255, 255))
         intro_rect = string_rendered.get_rect()
         text_coord += 10
         intro_rect.top = text_coord
         intro_rect.x = 10
+        text_coord += intro_rect.height
+        screen.blit(string_rendered, intro_rect)
+    font = pygame.font.SysFont('verdana', 20)
+    for line in main_text:
+        string_rendered = font.render(line, 1, (255, 255, 255))
+        intro_rect = string_rendered.get_rect()
+        text_coord += 10
+        intro_rect.top = text_coord
+        intro_rect.centerx = WIDTH//2
         text_coord += intro_rect.height
         screen.blit(string_rendered, intro_rect)
         font = pygame.font.SysFont('verdana', 20)
@@ -154,28 +152,29 @@ def main_cycle():
 
 def game_over():
     global running, menu_running, lost_running, screen, WIDTH, HEIGHT
+    clear_sprites()
     intro_text = ['ИГРА ОКОНЧЕНА']
     buttons = ['В главное меню']
-    fon = pygame.transform.scale(load_image('main_back.png'), (WIDTH, HEIGHT))
+    fon = pygame.transform.scale(load_image('lost_back.png'), (WIDTH, HEIGHT))
     screen.blit(fon, (0, 0))
-    font = pygame.font.SysFont('verdana', 35)
+    font = pygame.font.SysFont('verdana', 50)
     text_coord = 30
     for line in intro_text:
-        string_rendered = font.render(line, 1, (255, 255, 255))
+        string_rendered = font.render(line, 1, BLACK)
         intro_rect = string_rendered.get_rect()
         text_coord += 10
         intro_rect.top = text_coord
-        intro_rect.x = 10
+        intro_rect.centerx = WIDTH//2
         text_coord += intro_rect.height
         screen.blit(string_rendered, intro_rect)
 
-    font = pygame.font.SysFont('serif', 17)
+    font = pygame.font.SysFont('verdana', 17)
     for line in buttons:
-        string_rendered = font.render(line, 1, (255, 255, 255))
+        string_rendered = font.render(line, 1, BLACK)
         intro_rect = string_rendered.get_rect()
         text_coord += 10
         intro_rect.top = text_coord
-        intro_rect.x = 10
+        intro_rect.centerx = WIDTH//2
         text_coord += intro_rect.height
         screen.blit(string_rendered, intro_rect)
 
@@ -192,6 +191,19 @@ def game_over():
                     menu_running = True
         pygame.display.flip()
         clock.tick(20)
+
+
+def clear_sprites():
+    global all_sprites, mobs, bullets, player
+    all_sprites = pygame.sprite.Group()
+    mobs = pygame.sprite.Group()
+    bullets = pygame.sprite.Group()
+    player = Player(playerimage, 9, 4)
+    all_sprites.add(player)
+    for i in range(3):
+        m = Mob(mobimage, 6, 4)
+        all_sprites.add(m)
+        mobs.add(m)
 
 
 pygame.font.init()
