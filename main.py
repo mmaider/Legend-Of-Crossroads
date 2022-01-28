@@ -24,8 +24,7 @@ def main_menu():
         intro_rect1 = string_rendered.get_rect()
         text_coord += 10
         intro_rect1.top = text_coord
-        intro_rect1.x = 10
-        print(intro_rect1)
+        intro_rect1.centerx = WIDTH//2
         text_coord += intro_rect1.height
         screen.blit(string_rendered, intro_rect1)
     for line in buttons:
@@ -33,8 +32,7 @@ def main_menu():
         intro_rect = string_rendered.get_rect()
         text_coord += 10
         intro_rect.top = text_coord
-        intro_rect.x = 10
-        print(intro_rect)
+        intro_rect.centerx = WIDTH//2
         text_coord += intro_rect.height
         screen.blit(string_rendered, intro_rect)
 
