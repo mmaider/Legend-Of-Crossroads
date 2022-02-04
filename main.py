@@ -1,3 +1,5 @@
+import pygame.transform
+
 from game_methods import *
 
 
@@ -15,7 +17,7 @@ def main_menu():
         intro_rect = string_rendered.get_rect()
         text_coord += 10
         intro_rect.top = text_coord
-        intro_rect.centerx = WIDTH//2
+        intro_rect.centerx = WIDTH // 2
         text_coord += intro_rect.height
         screen.blit(string_rendered, intro_rect)
     font = pygame.font.SysFont('verdana', 20)
@@ -24,7 +26,7 @@ def main_menu():
         intro_rect1 = string_rendered.get_rect()
         text_coord += 10
         intro_rect1.top = text_coord
-        intro_rect1.centerx = WIDTH//2
+        intro_rect1.centerx = WIDTH // 2
         text_coord += intro_rect1.height
         screen.blit(string_rendered, intro_rect1)
     for line in buttons:
@@ -32,7 +34,7 @@ def main_menu():
         intro_rect = string_rendered.get_rect()
         text_coord += 10
         intro_rect.top = text_coord
-        intro_rect.centerx = WIDTH//2
+        intro_rect.centerx = WIDTH // 2
         text_coord += intro_rect.height
         screen.blit(string_rendered, intro_rect)
 
@@ -50,6 +52,9 @@ def main_menu():
                 if (pos[0] < intro_rect.right) and (pos[0] > intro_rect.left) and (pos[1] > intro_rect.top) and (
                         pos[1] < intro_rect.bottom):
                     menu_running = False
+                    pygame.mixer.music.load('music/battletheme.mp3')
+                    pygame.mixer.music.set_volume(0.4)
+                    pygame.mixer.music.play(loops=-1)
         pygame.display.flip()
         clock.tick(20)
 
@@ -72,7 +77,7 @@ def rules_menu():
         intro_rect = string_rendered.get_rect()
         text_coord += 10
         intro_rect.top = text_coord
-        intro_rect.centerx = WIDTH//2
+        intro_rect.centerx = WIDTH // 2
         text_coord += intro_rect.height
         screen.blit(string_rendered, intro_rect)
     font = pygame.font.SysFont('verdana', 17)
@@ -90,7 +95,7 @@ def rules_menu():
         intro_rect = string_rendered.get_rect()
         text_coord += 10
         intro_rect.top = text_coord
-        intro_rect.centerx = WIDTH//2
+        intro_rect.centerx = WIDTH // 2
         text_coord += intro_rect.height
         screen.blit(string_rendered, intro_rect)
         font = pygame.font.SysFont('verdana', 20)
@@ -110,16 +115,17 @@ def rules_menu():
 
 
 def main_cycle():
-    global running, lost_running
+    global running, lost_running, timer, curscore
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
         elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_SPACE:
+            if event.key == pygame.K_SPACE and player.magazine > 0:
                 mouse_x, mouse_y = pygame.mouse.get_pos()
                 bullet = player.shoot(mouse_x, mouse_y)
                 all_sprites.add(bullet)
                 bullets.add(bullet)
+                player.magazine -= 1
     screen.blit(bgimg, (0, 0))
     all_sprites.update(player.rect.x, player.rect.y)
 
@@ -128,6 +134,7 @@ def main_cycle():
         m = Mob(mobimage, 6, 4)
         all_sprites.add(m)
         mobs.add(m)
+        curscore += 1
 
     hits = pygame.sprite.spritecollide(player, mobs, True)
     if hits:
@@ -136,16 +143,47 @@ def main_cycle():
         all_sprites.add(m)
         mobs.add(m)
 
+    if timer // 60 == 20:
+        m = Heal(healimage, 2, 1)
+        all_sprites.add(m)
+        healers.add(m)
+        timer = 0
+        #доделать патроны
+        m = Heal(bulletsimage, 2, 1)
+        all_sprites.add(m)
+        amo.add(m)
+
+    hits = pygame.sprite.spritecollide(player, healers, True)
+    if hits:
+        player.life += 3
+
+    hits = pygame.sprite.spritecollide(player, amo, True)
+    if hits:
+        player.magazine += 10
+
     if player.life <= 0:
         lost_running = True
+        pygame.mixer.music.load('music/loosetheme.mp3')
+        pygame.mixer.music.set_volume(0.4)
+        pygame.mixer.music.play(loops=-1)
     font = pygame.font.Font(None, 32)
     all_sprites.draw(screen)
     text = font.render(
-        str(player.life), True, WHITE)
-    place = text.get_rect(center=(50, 30))
+        "HP: " + str(player.life), True, WHITE)
+    place = text.get_rect(topleft=(10, 5))
     screen.blit(text, place)
-    blit_hp(screen, 5, 5, player.life)
+    blit_stats(screen, text.get_width() + 20, 10, player.life, 10, GREEN)
+    text = font.render(
+        "BULLETS: " + str(player.magazine), True, WHITE)
+    place = text.get_rect(topleft=(10, 30))
+    screen.blit(text, place)
+    blit_stats(screen, text.get_width() + 20, 40, player.magazine, 20, RED)
+    text = font.render(
+        "SCORE: " + str(curscore), True, WHITE)
+    place = text.get_rect(topleft=(10, 55))
+    screen.blit(text, place)
     pygame.display.flip()
+    timer += 1
 
 
 def game_over():
@@ -162,7 +200,7 @@ def game_over():
         intro_rect = string_rendered.get_rect()
         text_coord += 10
         intro_rect.top = text_coord
-        intro_rect.centerx = WIDTH//2
+        intro_rect.centerx = WIDTH // 2
         text_coord += intro_rect.height
         screen.blit(string_rendered, intro_rect)
 
@@ -172,7 +210,7 @@ def game_over():
         intro_rect = string_rendered.get_rect()
         text_coord += 10
         intro_rect.top = text_coord
-        intro_rect.centerx = WIDTH//2
+        intro_rect.centerx = WIDTH // 2
         text_coord += intro_rect.height
         screen.blit(string_rendered, intro_rect)
 
@@ -187,6 +225,9 @@ def game_over():
                         pos[1] < intro_rect.bottom):
                     lost_running = False
                     menu_running = True
+                    pygame.mixer.music.load('music/menutheme.mp3')
+                    pygame.mixer.music.set_volume(0.4)
+                    pygame.mixer.music.play(loops=-1)
         pygame.display.flip()
         clock.tick(20)
 
@@ -196,7 +237,7 @@ def clear_sprites():
     all_sprites = pygame.sprite.Group()
     mobs = pygame.sprite.Group()
     bullets = pygame.sprite.Group()
-    player = Player(playerimage, 9, 4)
+    player = Player(playerimage, 4, 4)
     all_sprites.add(player)
     for i in range(3):
         m = Mob(mobimage, 6, 4)
@@ -207,21 +248,28 @@ def clear_sprites():
 pygame.font.init()
 
 img_dir = os.path.join(os.path.dirname(__file__), 'img')
-pygame.init()
+
 pygame.mixer.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Floors")
 clock = pygame.time.Clock()
 
 bgimg = pygame.transform.scale(load_image("bg.png"), (WIDTH, HEIGHT))
-playerimage = pygame.transform.scale(load_image("playerimg.png"), (576, 256))
+playerimage = pygame.transform.scale(load_image("playerimg1.png"), (250, 500))
 mobimage = pygame.transform.scale(load_image("mob.png"), (282, 190))
+healimage = pygame.transform.scale(load_image("heal.png"), (150, 57))
+bulletsimage = pygame.transform.scale(load_image("bullets.png"), (150, 57))
 
 all_sprites = pygame.sprite.Group()
 mobs = pygame.sprite.Group()
 bullets = pygame.sprite.Group()
-player = Player(playerimage, 9, 4)
+player = Player(playerimage, 4, 4)
+healers = pygame.sprite.Group()
+amo = pygame.sprite.Group()
 all_sprites.add(player)
+pygame.mixer.music.load('music/menutheme.mp3')
+pygame.mixer.music.set_volume(0.4)
+pygame.mixer.music.play(loops=-1)
 
 for i in range(3):
     m = Mob(mobimage, 6, 4)
