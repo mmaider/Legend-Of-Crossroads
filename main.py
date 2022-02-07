@@ -255,8 +255,8 @@ pygame.display.set_caption("Floors")
 clock = pygame.time.Clock()
 
 bgimg = pygame.transform.scale(load_image("bg.png"), (WIDTH, HEIGHT))
-playerimage = pygame.transform.scale(load_image("playerimg1.png"), (250, 500))
-mobimage = pygame.transform.scale(load_image("mob.png"), (282, 190))
+playerimage = pygame.transform.scale(load_image("playerimg1.png"), (380, 624))
+mobimage = pygame.transform.scale(load_image("mob.png"), (400, 270))
 healimage = pygame.transform.scale(load_image("heal.png"), (150, 57))
 bulletsimage = pygame.transform.scale(load_image("bullets.png"), (150, 57))
 

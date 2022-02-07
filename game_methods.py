@@ -36,15 +36,19 @@ class Player(pygame.sprite.Sprite):
         if keystate[pygame.K_a]:
             self.speedx = -5
             self.cur_row = 2
+            self.walk()
         elif keystate[pygame.K_d]:
             self.speedx = 5
             self.cur_row = 3
-        if keystate[pygame.K_w]:
+            self.walk()
+        elif keystate[pygame.K_w]:
             self.speedy = -5
             self.cur_row = 1
+            self.walk()
         elif keystate[pygame.K_s]:
             self.speedy = 5
             self.cur_row = 0
+            self.walk()
         self.rect.x += self.speedx
         self.rect.y += self.speedy
         if self.rect.right > WIDTH:
@@ -55,6 +59,8 @@ class Player(pygame.sprite.Sprite):
             self.rect.bottom = HEIGHT
         if self.rect.top < 0:
             self.rect.top = 0
+
+    def walk(self):
         self.timestamp += 1
         if self.timestamp >= 10:
             self.cur_frame = (self.cur_frame + 1) % len(self.frames[0])
@@ -158,8 +164,8 @@ class Heal(pygame.sprite.Sprite):
         self.cur_frame = 0
         self.image = self.frames[self.cur_row][self.cur_frame]
         self.rect = self.image.get_rect()
-        self.rect.centerx = random.randrange(20, WIDTH-10, 1)
-        self.rect.bottom = random.randrange(20, HEIGHT-10, 1)
+        self.rect.centerx = random.randrange(20, WIDTH - 10, 1)
+        self.rect.bottom = random.randrange(20, HEIGHT - 10, 1)
         self.timestamp = 0
 
     def cut_sheet(self, sheet, columns, rows):
