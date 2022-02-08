@@ -256,7 +256,7 @@ clock = pygame.time.Clock()
 
 bgimg = pygame.transform.scale(load_image("bg.png"), (WIDTH, HEIGHT))
 playerimage = pygame.transform.scale(load_image("playerimg1.png"), (380, 624))
-mobimage = pygame.transform.scale(load_image("mob.png"), (400, 270))
+mobimage = pygame.transform.scale(load_image("mob.png"), (350, 236))
 healimage = pygame.transform.scale(load_image("heal.png"), (150, 57))
 bulletsimage = pygame.transform.scale(load_image("bullets.png"), (150, 57))
 

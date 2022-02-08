@@ -49,6 +49,8 @@ class Player(pygame.sprite.Sprite):
             self.speedy = 5
             self.cur_row = 0
             self.walk()
+        else:
+            self.cur_frame = 0
         self.rect.x += self.speedx
         self.rect.y += self.speedy
         if self.rect.right > WIDTH:
@@ -105,6 +107,7 @@ class Mob(pygame.sprite.Sprite):
         self.rect.x = self.rect_arr[self.temp][0]
         self.rect.y = self.rect_arr[self.temp][1]
         self.speed = random.randrange(1, 3)
+        self.timestamp = 0
 
     def cut_sheet(self, sheet, columns, rows):
         self.rect = pygame.Rect(0, 0, sheet.get_width() // columns,
@@ -133,8 +136,11 @@ class Mob(pygame.sprite.Sprite):
             self.rect.x = random.randrange(WIDTH - self.rect.width)
             self.rect.y = -40
 
-        self.cur_frame = (self.cur_frame + 1) % len(self.frames[0])
-        self.image = self.frames[self.cur_row][self.cur_frame]
+        self.timestamp += 1
+        if self.timestamp >= 10:
+            self.cur_frame = (self.cur_frame + 1) % len(self.frames[0])
+            self.image = self.frames[self.cur_row][self.cur_frame]
+            self.timestamp = 0
 
 
 class Bullet(pygame.sprite.Sprite):
