@@ -216,9 +216,12 @@ class DevilHand(pygame.sprite.Sprite):
         self.timestamp = 0
         self.rot = 0
         self.rotspeed = 0
+        self.maxangle = 45
 
     def update(self, *args):
-        self.rot = (self.rot + self.rotspeed) % 90
+        if abs(self.rot) >= abs(self.maxangle)-1:
+            self.rotspeed *= -1
+        self.rot = (self.rot + self.rotspeed) % self.maxangle
         newimage = pygame.transform.rotate(self.imagecopy, self.rot)
         oldcenter = self.rect.center
         self.image = newimage

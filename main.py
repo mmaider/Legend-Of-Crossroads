@@ -293,8 +293,8 @@ mobimage = pygame.transform.scale(load_image("mob.png"), (350, 236))
 healimage = pygame.transform.scale(load_image("heal.png"), (150, 57))
 bulletsimage = pygame.transform.scale(load_image("bullets.png"), (150, 70))
 devilhead = pygame.transform.scale(load_image("bosshead.png"), (WIDTH, HEIGHT))
-devilrhand = pygame.transform.scale(load_image("bossrighthand.png"), (WIDTH, HEIGHT))
-devillhand = pygame.transform.scale(load_image("bosslefthand.png"), (WIDTH, HEIGHT))
+devilrhand = pygame.transform.scale(load_image("bossrighthand1.png"), (WIDTH, HEIGHT))
+devillhand = pygame.transform.scale(load_image("bosslefthand1.png"), (WIDTH, HEIGHT))
 bulletimage = pygame.transform.scale(load_image("bullet.png"), (20, 30))
 
 all_sprites = pygame.sprite.Group()
@@ -304,12 +304,12 @@ player = Player(playerimage, 4, 4)
 bosshead = DevilHead(devilhead)
 bossrhand = DevilHand(devilrhand)
 bossrhand.rotspeed = -0.1
-bossrhand.rect.x = 100 + WIDTH//2
-# rect
+bossrhand.maxangle = -45
+bossrhand.rect.x = WIDTH // 2
+
 bosslhand = DevilHand(devillhand)
 bosslhand.rotspeed = 0.1
-bosslhand.rect.x = - bossrhand.rect.x
-# rect
+bosslhand.rect.x = - WIDTH // 2
 healers = pygame.sprite.Group()
 amo = pygame.sprite.Group()
 all_sprites.add(player)
