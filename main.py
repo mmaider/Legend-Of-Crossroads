@@ -122,7 +122,7 @@ def main_cycle():
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE and player.magazine > 0:
                 mouse_x, mouse_y = pygame.mouse.get_pos()
-                bullet = player.shoot(mouse_x, mouse_y)
+                bullet = player.shoot(bulletimage, mouse_x, mouse_y)
                 all_sprites.add(bullet)
                 bullets.add(bullet)
                 player.magazine -= 1
@@ -289,10 +289,11 @@ bgimg = pygame.transform.scale(load_image("bg.png"), (WIDTH, HEIGHT))
 playerimage = pygame.transform.scale(load_image("playerimg1.png"), (380, 624))
 mobimage = pygame.transform.scale(load_image("mob.png"), (350, 236))
 healimage = pygame.transform.scale(load_image("heal.png"), (150, 57))
-bulletsimage = pygame.transform.scale(load_image("bullets.png"), (150, 57))
+bulletsimage = pygame.transform.scale(load_image("bullets.png"), (150, 70))
 devilhead = pygame.transform.scale(load_image("bosshead.png"), (WIDTH, HEIGHT))
 devilrhand = pygame.transform.scale(load_image("bossrighthand.png"), (WIDTH, HEIGHT))
 devillhand = pygame.transform.scale(load_image("bosslefthand.png"), (WIDTH, HEIGHT))
+bulletimage = pygame.transform.scale(load_image("bullet.png"), (20, 30))
 
 all_sprites = pygame.sprite.Group()
 mobs = pygame.sprite.Group()

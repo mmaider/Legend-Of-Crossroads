@@ -69,7 +69,7 @@ class Player(pygame.sprite.Sprite):
             self.image = self.frames[self.cur_row][self.cur_frame]
             self.timestamp = 0
 
-    def shoot(self, mx, my):
+    def shoot(self, image, mx, my):
         # print(mx, my, self.rect.x, self.rect.y)
 
         if my > self.rect.y:
@@ -86,7 +86,7 @@ class Player(pygame.sprite.Sprite):
         except ZeroDivisionError:
             kx = 1
         # print(kx, ky)
-        bullet = Bullet(self.rect.centerx, self.rect.top, kx, ky)
+        bullet = Bullet(image, self.rect.centerx, self.rect.top, kx, ky)
         return bullet
 
 
@@ -144,10 +144,9 @@ class Mob(pygame.sprite.Sprite):
 
 
 class Bullet(pygame.sprite.Sprite):
-    def __init__(self, x, y, kx, ky):
+    def __init__(self, image, x, y, kx, ky):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.Surface((10, 20))
-        self.image.fill(GREEN)
+        self.image = image
         self.rect = self.image.get_rect()
         self.rect.bottom = y
         self.rect.centerx = x
