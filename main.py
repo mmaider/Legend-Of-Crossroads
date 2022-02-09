@@ -184,7 +184,7 @@ def main_cycle():
     place = text.get_rect(topleft=(10, 55))
     screen.blit(text, place)
 
-    if curscore == 20:
+    if curscore == 0:
         bfrunning = True
 
     pygame.display.flip()
@@ -258,9 +258,11 @@ def bossfight():
             if event.type == pygame.QUIT:
                 bfrunning = False
                 running = False
+        screen.blit(bgimg, (0, 0))
+        all_sprites.update()
         all_sprites.draw(screen)
         pygame.display.flip()
-        clock.tick(20)
+        clock.tick(FPS)
 
 
 def clear_sprites():
@@ -301,8 +303,12 @@ bullets = pygame.sprite.Group()
 player = Player(playerimage, 4, 4)
 bosshead = DevilHead(devilhead)
 bossrhand = DevilHand(devilrhand)
+bossrhand.rotspeed = -0.1
+bossrhand.rect.x = 100 + WIDTH//2
 # rect
 bosslhand = DevilHand(devillhand)
+bosslhand.rotspeed = 0.1
+bosslhand.rect.x = - bossrhand.rect.x
 # rect
 healers = pygame.sprite.Group()
 amo = pygame.sprite.Group()

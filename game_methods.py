@@ -208,15 +208,23 @@ class DevilHead(pygame.sprite.Sprite):
 class DevilHand(pygame.sprite.Sprite):
     def __init__(self, hand):
         pygame.sprite.Sprite.__init__(self)
-        self.image = hand
+        self.imagecopy = hand
+        self.image = self.imagecopy.copy()
         self.rect = self.image.get_rect()
         self.rect.x, self.rect.y = 0, 0
         self.speed = 0
         self.timestamp = 0
-        self.life = 10
+        self.rot = 0
+        self.rotspeed = 0
 
     def update(self, *args):
-        return 0
+        self.rot = (self.rot + self.rotspeed) % 90
+        newimage = pygame.transform.rotate(self.imagecopy, self.rot)
+        oldcenter = self.rect.center
+        self.image = newimage
+        self.rect = self.image.get_rect()
+        self.rect.center = oldcenter
+
 
 
 def load_image(name, colorkey=None):
