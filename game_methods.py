@@ -192,6 +192,22 @@ class Heal(pygame.sprite.Sprite):
             self.timestamp = 0
 
 
+class Devil(pygame.sprite.Sprite):
+    def __init__(self, head, rhand, lhand):
+        pygame.sprite.Sprite.__init__(self)
+        self.head = head
+        self.rhand = rhand
+        self.lhand = lhand
+        self.rect = self.image.get_rect()
+        self.rect.x, self.rect.y = 0, 0
+        self.speed = 0
+        self.timestamp = 0
+        self.life = 10
+
+    def update(self, *args):
+        return 0
+
+
 def load_image(name, colorkey=None):
     fullname = os.path.join('img', name)
     try:

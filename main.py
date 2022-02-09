@@ -148,7 +148,7 @@ def main_cycle():
         all_sprites.add(m)
         healers.add(m)
         timer = 0
-        #доделать патроны
+        # доделать патроны
         m = Heal(bulletsimage, 2, 1)
         all_sprites.add(m)
         amo.add(m)
@@ -166,6 +166,7 @@ def main_cycle():
         pygame.mixer.music.load('music/loosetheme.mp3')
         pygame.mixer.music.set_volume(0.4)
         pygame.mixer.music.play(loops=-1)
+
     font = pygame.font.Font(None, 32)
     all_sprites.draw(screen)
     text = font.render(
@@ -182,6 +183,16 @@ def main_cycle():
         "SCORE: " + str(curscore), True, WHITE)
     place = text.get_rect(topleft=(10, 55))
     screen.blit(text, place)
+
+    if curscore == 20:
+        font = pygame.font.Font(None, 50)
+        text = font.render("!BOSSFIGHT!", True, WHITE)
+        place = text.get_rect(center=(WIDTH//2, HEIGHT//2))
+        screen.blit(text, place)
+        pygame.display.flip()
+        pygame.time.wait(1000)
+        lost_running = True
+
     pygame.display.flip()
     timer += 1
 
@@ -232,6 +243,10 @@ def game_over():
         clock.tick(20)
 
 
+def bossfight():
+    return 0
+
+
 def clear_sprites():
     global all_sprites, mobs, bullets, player
     all_sprites = pygame.sprite.Group()
@@ -259,6 +274,9 @@ playerimage = pygame.transform.scale(load_image("playerimg1.png"), (380, 624))
 mobimage = pygame.transform.scale(load_image("mob.png"), (350, 236))
 healimage = pygame.transform.scale(load_image("heal.png"), (150, 57))
 bulletsimage = pygame.transform.scale(load_image("bullets.png"), (150, 57))
+devilhead = pygame.transform.scale(load_image("bosshead.png"), (WIDTH, HEIGHT))
+devilrhand = pygame.transform.scale(load_image("bossrighthand.png"), (WIDTH, HEIGHT))
+devillhand = pygame.transform.scale(load_image("bosslefthand.png"), (WIDTH, HEIGHT))
 
 all_sprites = pygame.sprite.Group()
 mobs = pygame.sprite.Group()
