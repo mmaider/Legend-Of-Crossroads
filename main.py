@@ -115,7 +115,7 @@ def rules_menu():
 
 
 def main_cycle():
-    global running, lost_running, timer, curscore
+    global running, lost_running, bfrunning, timer, curscore
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
@@ -185,13 +185,7 @@ def main_cycle():
     screen.blit(text, place)
 
     if curscore == 20:
-        font = pygame.font.Font(None, 50)
-        text = font.render("!BOSSFIGHT!", True, WHITE)
-        place = text.get_rect(center=(WIDTH//2, HEIGHT//2))
-        screen.blit(text, place)
-        pygame.display.flip()
-        pygame.time.wait(1000)
-        lost_running = True
+        bfrunning = True
 
     pygame.display.flip()
     timer += 1
@@ -244,7 +238,29 @@ def game_over():
 
 
 def bossfight():
-    return 0
+    global running, bfrunning, lost_running, screen, WIDTH, HEIGHT
+    screen.blit(bgimg, (0, 0))
+    all_sprites = pygame.sprite.Group()
+    player.rect.centerx = WIDTH // 2
+    player.rect.bottom = HEIGHT
+    all_sprites.add(player)
+    all_sprites.add(bosshead)
+    all_sprites.add(bossrhand)
+    all_sprites.add(bosslhand)
+    font = pygame.font.Font(None, 50)
+    text = font.render("!BOSSFIGHT!", True, WHITE)
+    place = text.get_rect(center=(WIDTH // 2, HEIGHT // 2))
+    screen.blit(text, place)
+    pygame.display.flip()
+    pygame.time.wait(1000)
+    while bfrunning:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                bfrunning = False
+                running = False
+        all_sprites.draw(screen)
+        pygame.display.flip()
+        clock.tick(20)
 
 
 def clear_sprites():
@@ -282,6 +298,11 @@ all_sprites = pygame.sprite.Group()
 mobs = pygame.sprite.Group()
 bullets = pygame.sprite.Group()
 player = Player(playerimage, 4, 4)
+bosshead = DevilHead(devilhead)
+bossrhand = DevilHand(devilrhand)
+# rect
+bosslhand = DevilHand(devillhand)
+# rect
 healers = pygame.sprite.Group()
 amo = pygame.sprite.Group()
 all_sprites.add(player)
@@ -298,6 +319,7 @@ running = True
 menu_running = True
 rules_running = False
 lost_running = False
+bfrunning = False
 
 while running:
     clock.tick(FPS)
@@ -307,6 +329,8 @@ while running:
         rules_menu()
     elif lost_running:
         game_over()
+    elif bfrunning:
+        bossfight()
     else:
         main_cycle()
 
