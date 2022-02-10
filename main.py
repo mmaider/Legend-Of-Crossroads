@@ -13,7 +13,7 @@ def main_menu():
     font = pygame.font.SysFont('verdana', 50)
     text_coord = 30
     for line in intro_text:
-        string_rendered = font.render(line, 1, (255, 255, 255))
+        string_rendered = font.render(line, 1, (0, 0, 0))
         intro_rect = string_rendered.get_rect()
         text_coord += 10
         intro_rect.top = text_coord
@@ -22,7 +22,7 @@ def main_menu():
         screen.blit(string_rendered, intro_rect)
     font = pygame.font.SysFont('verdana', 20)
     for line in rules:
-        string_rendered = font.render(line, 1, (255, 255, 255))
+        string_rendered = font.render(line, 1, (0, 0, 0))
         intro_rect1 = string_rendered.get_rect()
         text_coord += 10
         intro_rect1.top = text_coord
@@ -30,7 +30,7 @@ def main_menu():
         text_coord += intro_rect1.height
         screen.blit(string_rendered, intro_rect1)
     for line in buttons:
-        string_rendered = font.render(line, 1, (255, 255, 255))
+        string_rendered = font.render(line, 1, (0, 0, 0))
         intro_rect = string_rendered.get_rect()
         text_coord += 10
         intro_rect.top = text_coord
@@ -149,6 +149,7 @@ def main_cycle():
 
     hits = pygame.sprite.spritecollide(player, mobs, True)
     if hits:
+        beat_sound.play()
         player.life -= 1
         m = Mob(mobimage, 6, 4)
         all_sprites.add(m)
@@ -253,8 +254,6 @@ def game_over():
 
 def bossfight():
     global running, bfrunning, lost_running, screen, WIDTH, HEIGHT, result, timer
-    screen.blit(bgimg, (0, 0))
-    screen.blit(penta, (0, 0))
     all_sprites = pygame.sprite.Group()
     bosshead = DevilHead(devilhead)
     bossrhand = DevilHand(devilrhand)
@@ -274,7 +273,6 @@ def bossfight():
     devil.add(bosshead)
     devil.add(bossrhand)
     devil.add(bosslhand)
-    all_sprites.draw(screen)
     bad_bullets = pygame.sprite.Group()
     m = Bullet(bulletimage, random.randrange(0, WIDTH), 0, 0, 1)
     all_sprites.add(m)
@@ -284,9 +282,14 @@ def bossfight():
     text = font.render("!BOSSFIGHT!", True, WHITE)
     place = text.get_rect(center=(WIDTH // 2, HEIGHT // 2))
     boss_sound.play()
-    screen.blit(text, place)
-    pygame.display.flip()
-    pygame.time.wait(3000)
+    for i in range(1, 3):
+        screen.blit(bgimg, (0, 0))
+        screen.blit(penta, (0, 0))
+        all_sprites.draw(screen)
+        screen.blit(pygame.transform.scale(load_image("heart"+str(3-i)+".png"), (400, 300)), (220, 300))
+        screen.blit(text, place)
+        pygame.display.flip()
+        pygame.time.wait(i*1000)
     while bfrunning:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -310,15 +313,24 @@ def bossfight():
             hit.kill()
             if bosshead.life <= 0:
                 boss_sound.play()
-                pygame.time.wait(3000)
+                for i in range(1, 3):
+                    screen.blit(bgimg, (0, 0))
+                    screen.blit(penta, (0, 0))
+                    all_sprites.draw(screen)
+                    screen.blit(pygame.transform.scale(load_image("heart" + str(i) + ".png"), (400, 300)),
+                                (220, 300))
+                    pygame.display.flip()
+                    pygame.time.wait(i * 1000)
                 bfrunning = False
                 lost_running = True
                 result = True
                 pygame.mixer.music.load('music/loosetheme.mp3')
                 pygame.mixer.music.set_volume(0.4)
                 pygame.mixer.music.play(loops=-1)
+                break
         hits = pygame.sprite.spritecollide(player, bad_bullets, False, collided=pygame.sprite.collide_mask)
         for hit in hits:
+            beat_sound.play()
             player.life -= 1
             hit.kill()
         if player.life <= 0:
@@ -327,7 +339,7 @@ def bossfight():
             pygame.mixer.music.load('music/loosetheme.mp3')
             pygame.mixer.music.set_volume(0.4)
             pygame.mixer.music.play(loops=-1)
-        if timer // 10:
+        if timer // 5:
             m = Bullet(bulletimage, random.randrange(0, WIDTH), 0, 0, 1)
             all_sprites.add(m)
             bad_bullets.add(m)
@@ -414,6 +426,7 @@ pygame.mixer.music.play(loops=-1)
 shoot_sound = pygame.mixer.Sound('music/pew.wav')
 exp_sound = pygame.mixer.Sound('music/expl3.wav')
 shoot_sound = pygame.mixer.Sound('music/pew.wav')
+beat_sound = pygame.mixer.Sound('music/beat.mp3')
 boss_sound = pygame.mixer.Sound('music/bosssound.mp3')
 
 for i in range(3):
