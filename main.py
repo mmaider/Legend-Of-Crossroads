@@ -121,17 +121,19 @@ def main_cycle():
             running = False
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE and player.magazine > 0:
+                shoot_sound.play()
                 mouse_x, mouse_y = pygame.mouse.get_pos()
                 bullet = player.shoot(bulletimage, mouse_x, mouse_y)
                 all_sprites.add(bullet)
                 bullets.add(bullet)
                 player.magazine -= 1
     screen.blit(bgimg, (0, 0))
-    blit_alpha(screen, penta, (0, 0), (255*curscore)//20)
+    blit_alpha(screen, penta, (0, 0), (255 * curscore) // 20)
     all_sprites.update(player.rect.x, player.rect.y)
 
     hits = pygame.sprite.groupcollide(mobs, bullets, True, True)
     for hit in hits:
+        exp_sound.play()
         m = Mob(mobimage, 6, 4)
         all_sprites.add(m)
         mobs.add(m)
@@ -185,7 +187,7 @@ def main_cycle():
     place = text.get_rect(topleft=(10, 55))
     screen.blit(text, place)
 
-    if curscore == 20:
+    if curscore >= 20:
         bfrunning = True
 
     pygame.display.flip()
@@ -311,17 +313,21 @@ bosshead = DevilHead(devilhead)
 bossrhand = DevilHand(devilrhand)
 bossrhand.rotspeed = -0.1
 bossrhand.maxangle = -45
-bossrhand.rect.x = WIDTH // 2
+bossrhand.rect.x = WIDTH // 2 + 50
 
 bosslhand = DevilHand(devillhand)
 bosslhand.rotspeed = 0.1
-bosslhand.rect.x = - WIDTH // 2
+bosslhand.rect.x = - bossrhand.rect.x
 healers = pygame.sprite.Group()
 amo = pygame.sprite.Group()
 all_sprites.add(player)
 pygame.mixer.music.load('music/menutheme.mp3')
 pygame.mixer.music.set_volume(0.4)
 pygame.mixer.music.play(loops=-1)
+shoot_sound = pygame.mixer.Sound('music/pew.wav')
+exp_sound = pygame.mixer.Sound('music/expl3.wav')
+shoot_sound = pygame.mixer.Sound('music/pew.wav')
+boss_sound = pygame.mixer.Sound('music/expl3.wav')
 
 for i in range(3):
     m = Mob(mobimage, 6, 4)
