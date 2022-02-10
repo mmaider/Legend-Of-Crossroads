@@ -151,7 +151,6 @@ def main_cycle():
         all_sprites.add(m)
         healers.add(m)
         timer = 0
-        # доделать патроны
         m = Heal(bulletsimage, 2, 1)
         all_sprites.add(m)
         amo.add(m)
@@ -187,7 +186,7 @@ def main_cycle():
     place = text.get_rect(topleft=(10, 55))
     screen.blit(text, place)
 
-    if curscore >= 0:
+    if curscore >= 20:
         bfrunning = True
 
     pygame.display.flip()
@@ -195,11 +194,15 @@ def main_cycle():
 
 
 def game_over():
-    global running, menu_running, lost_running, screen, WIDTH, HEIGHT
+    global running, menu_running, lost_running, screen, WIDTH, HEIGHT, result
     clear_sprites()
-    intro_text = ['ИГРА ОКОНЧЕНА']
+    if result:
+        intro_text = ['!ПОБЕДА!']
+        fon = pygame.transform.scale(load_image('win_back.png'), (WIDTH, HEIGHT))
+    else:
+        intro_text = ['ИГРА ОКОНЧЕНА']
+        fon = pygame.transform.scale(load_image('lost_back.png'), (WIDTH, HEIGHT))
     buttons = ['В главное меню']
-    fon = pygame.transform.scale(load_image('lost_back.png'), (WIDTH, HEIGHT))
     screen.blit(fon, (0, 0))
     font = pygame.font.SysFont('verdana', 50)
     text_coord = 30
@@ -241,7 +244,7 @@ def game_over():
 
 
 def bossfight():
-    global running, bfrunning, lost_running, screen, WIDTH, HEIGHT
+    global running, bfrunning, lost_running, screen, WIDTH, HEIGHT, result, timer
     screen.blit(bgimg, (0, 0))
     screen.blit(penta, (0, 0))
     all_sprites = pygame.sprite.Group()
@@ -263,6 +266,12 @@ def bossfight():
     devil.add(bosshead)
     devil.add(bossrhand)
     devil.add(bosslhand)
+    all_sprites.draw(screen)
+    bad_bullets = pygame.sprite.Group()
+    m = Bullet(bulletimage, random.randrange(0, WIDTH), 0, 0, 1)
+    all_sprites.add(m)
+    bad_bullets.add(m)
+    timer = 0
     font = pygame.font.Font(None, 50)
     text = font.render("!BOSSFIGHT!", True, WHITE)
     place = text.get_rect(center=(WIDTH // 2, HEIGHT // 2))
@@ -291,16 +300,33 @@ def bossfight():
             exp_sound.play()
             bosshead.life -= 1
             hit.kill()
+            if bosshead.life <= 0:
+                boss_sound.play()
+                pygame.time.wait(3000)
+                bfrunning = False
+                lost_running = True
+                result = True
+                pygame.mixer.music.load('music/loosetheme.mp3')
+                pygame.mixer.music.set_volume(0.4)
+                pygame.mixer.music.play(loops=-1)
+        hits = pygame.sprite.spritecollide(player, bad_bullets, False, collided=pygame.sprite.collide_mask)
+        for hit in hits:
+            player.life -= 1
+            hit.kill()
         if player.life <= 0:
             bfrunning = False
             lost_running = True
             pygame.mixer.music.load('music/loosetheme.mp3')
             pygame.mixer.music.set_volume(0.4)
             pygame.mixer.music.play(loops=-1)
+        if timer//10:
+            m = Bullet(bulletimage, random.randrange(0, WIDTH), 0, 0, 1)
+            all_sprites.add(m)
+            bad_bullets.add(m)
+            timer = 0
 
         all_sprites.update()
         all_sprites.draw(screen)
-
         font = pygame.font.Font(None, 32)
         text = font.render(
             "HP: " + str(player.life), True, WHITE)
@@ -313,7 +339,7 @@ def bossfight():
         place = text1.get_rect(topright=(WIDTH - 10, 5))
         blit_stats(screen, WIDTH - (text1.get_width() + 120), 10, bosshead.life, 20, RED)
         screen.blit(text1, place)
-
+        timer += 1
         pygame.display.flip()
         clock.tick(FPS)
 
@@ -352,6 +378,8 @@ devilrhand = pygame.transform.scale(load_image("bossrighthand1.png"), (WIDTH, HE
 devillhand = pygame.transform.scale(load_image("bosslefthand1.png"), (WIDTH, HEIGHT))
 bulletimage = pygame.transform.scale(load_image("bullet.png"), (20, 30))
 penta = pygame.transform.scale(load_image("penta.png"), (WIDTH, HEIGHT))
+deadbosshead = pygame.transform.scale(load_image("deadbosshead.png"), (WIDTH, HEIGHT))
+pygame.transform.scale(load_image("penta.png"), (WIDTH, HEIGHT))
 
 all_sprites = pygame.sprite.Group()
 mobs = pygame.sprite.Group()
@@ -387,6 +415,7 @@ menu_running = True
 rules_running = False
 lost_running = False
 bfrunning = False
+result = False
 
 while running:
     clock.tick(FPS)
