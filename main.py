@@ -187,7 +187,7 @@ def main_cycle():
     place = text.get_rect(topleft=(10, 55))
     screen.blit(text, place)
 
-    if curscore >= 20:
+    if curscore >= 0:
         bfrunning = True
 
     pygame.display.flip()
@@ -245,27 +245,75 @@ def bossfight():
     screen.blit(bgimg, (0, 0))
     screen.blit(penta, (0, 0))
     all_sprites = pygame.sprite.Group()
+    bosshead = DevilHead(devilhead)
+    bossrhand = DevilHand(devilrhand)
+    bossrhand.rotspeed = -0.1
+    bossrhand.maxangle = -45
+    bossrhand.rect.x = WIDTH // 2 + 50
+    bosslhand = DevilHand(devillhand)
+    bosslhand.rotspeed = 0.1
+    bosslhand.rect.x = - bossrhand.rect.x
     player.rect.centerx = WIDTH // 2
     player.rect.bottom = HEIGHT
     all_sprites.add(player)
     all_sprites.add(bosshead)
     all_sprites.add(bossrhand)
     all_sprites.add(bosslhand)
+    devil = pygame.sprite.Group()
+    devil.add(bosshead)
+    devil.add(bossrhand)
+    devil.add(bosslhand)
     font = pygame.font.Font(None, 50)
     text = font.render("!BOSSFIGHT!", True, WHITE)
     place = text.get_rect(center=(WIDTH // 2, HEIGHT // 2))
+    boss_sound.play()
     screen.blit(text, place)
     pygame.display.flip()
-    pygame.time.wait(1000)
+    pygame.time.wait(3000)
     while bfrunning:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 bfrunning = False
                 running = False
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    shoot_sound.play()
+                    mouse_x, mouse_y = pygame.mouse.get_pos()
+                    bullet = player.shoot(bulletimage, mouse_x, mouse_y)
+                    all_sprites.add(bullet)
+                    bullets.add(bullet)
         screen.blit(bgimg, (0, 0))
         screen.blit(penta, (0, 0))
+        if pygame.sprite.spritecollide(player, devil, False, collided=pygame.sprite.collide_mask):
+            player.life -= 1
+        hits = pygame.sprite.spritecollide(bosshead, bullets, False, collided=pygame.sprite.collide_mask)
+        for hit in hits:
+            exp_sound.play()
+            bosshead.life -= 1
+            hit.kill()
+        if player.life <= 0:
+            bfrunning = False
+            lost_running = True
+            pygame.mixer.music.load('music/loosetheme.mp3')
+            pygame.mixer.music.set_volume(0.4)
+            pygame.mixer.music.play(loops=-1)
+
         all_sprites.update()
         all_sprites.draw(screen)
+
+        font = pygame.font.Font(None, 32)
+        text = font.render(
+            "HP: " + str(player.life), True, WHITE)
+        place = text.get_rect(topleft=(10, 5))
+        screen.blit(text, place)
+        blit_stats(screen, text.get_width() + 20, 10, player.life, 10, GREEN)
+
+        text1 = font.render(
+            "DEVIL: " + str(bosshead.life), True, WHITE)
+        place = text1.get_rect(topright=(WIDTH - 10, 5))
+        blit_stats(screen, WIDTH - (text1.get_width() + 120), 10, bosshead.life, 20, RED)
+        screen.blit(text1, place)
+
         pygame.display.flip()
         clock.tick(FPS)
 
@@ -291,7 +339,7 @@ pygame.mixer.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 toplayer = pygame.display.set_mode((WIDTH, HEIGHT))
 toplayer.set_alpha(255)
-pygame.display.set_caption("Floors")
+pygame.display.set_caption("Legend of Crossroads")
 clock = pygame.time.Clock()
 
 bgimg = pygame.transform.scale(load_image("bg.png"), (WIDTH, HEIGHT))
@@ -327,7 +375,7 @@ pygame.mixer.music.play(loops=-1)
 shoot_sound = pygame.mixer.Sound('music/pew.wav')
 exp_sound = pygame.mixer.Sound('music/expl3.wav')
 shoot_sound = pygame.mixer.Sound('music/pew.wav')
-boss_sound = pygame.mixer.Sound('music/expl3.wav')
+boss_sound = pygame.mixer.Sound('music/bosssound.mp3')
 
 for i in range(3):
     m = Mob(mobimage, 6, 4)

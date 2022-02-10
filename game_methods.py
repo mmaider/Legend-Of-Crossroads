@@ -9,7 +9,8 @@ class Player(pygame.sprite.Sprite):
         self.cut_sheet(sheet, columns, rows)
         self.cur_row = 0
         self.cur_frame = 0
-        self.image = self.frames[self.cur_row][self.cur_frame]
+        self.image = (self.frames[self.cur_row][self.cur_frame]).convert_alpha()
+        self.mask = pygame.mask.from_surface(self.image)
         self.rect = self.image.get_rect()
         self.rect.centerx = WIDTH / 2
         self.rect.bottom = HEIGHT - 10
@@ -194,12 +195,13 @@ class Heal(pygame.sprite.Sprite):
 class DevilHead(pygame.sprite.Sprite):
     def __init__(self, head):
         pygame.sprite.Sprite.__init__(self)
-        self.image = head
+        self.image = head.convert_alpha()
+        self.mask = pygame.mask.from_surface(self.image)
         self.rect = self.image.get_rect()
         self.rect.x, self.rect.y = 0, 0
         self.speed = 0
         self.timestamp = 0
-        self.life = 10
+        self.life = 20
 
     def update(self, *args):
         return 0
@@ -209,7 +211,8 @@ class DevilHand(pygame.sprite.Sprite):
     def __init__(self, hand):
         pygame.sprite.Sprite.__init__(self)
         self.imagecopy = hand
-        self.image = self.imagecopy.copy()
+        self.image = (self.imagecopy.copy()).convert_alpha()
+        self.mask = pygame.mask.from_surface(self.image)
         self.rect = self.image.get_rect()
         self.rect.x, self.rect.y = 0, 0
         self.speed = 0
@@ -227,6 +230,7 @@ class DevilHand(pygame.sprite.Sprite):
         self.image = newimage
         self.rect = self.image.get_rect()
         self.rect.center = oldcenter
+        self.mask = pygame.mask.from_surface(self.image)
 
 
 def load_image(name, colorkey=None):
