@@ -62,14 +62,20 @@ def main_menu():
 def rules_menu():
     global running, menu_running, rules_running, screen, WIDTH, HEIGHT
     intro_text = ['Правила игры']
-    rules_text = ['- Ваша задача - убить как можно больше призраков',
-                  '- Если вы сталкиваетесь с призраком, ваше здоровье падает',
-                  '- Используйте WASD для передвижения по полю',
-                  '- Используйте пробел для стрельбы',
-                  '- Используйте курсор для задания направления стрельбы']
+    rules_text = ['- Привет! Слышал эту городскую легенду про демона перекрёстка? Нет?!',
+                  '- Недалеко от города есть закрытое шоссе с подозрительным перекрёстком.',
+                  '- Говорят, там люди пропадают. Ну, знаешь, нечисть всякая бесится... ',
+                  '- Так вот, не поможешь мне разобраться с этой чертовщиной? Ты в деле? Супер!',
+                  '- Используй WASD для управления. Можешь стрелять по врагам с помощью пробела,',
+                  '- а в качестве прицела используй курсор... А, и ещё.',
+                  '- Если тебе повезёт увидеть демона перекрёстка, не дай ему себя схватить',
+                  '- и стреляй ему в голову. Патроны и аптечки иногда будут появляться на локации.',
+                  '- На этом всё! Удачи!']
     main_text = ['В главное меню']
     fon = pygame.transform.scale(load_image('main_back.png'), (WIDTH, HEIGHT))
     screen.blit(fon, (0, 0))
+    screen.blit(pygame.transform.scale(load_image("Dialog.png"), (WIDTH-6, HEIGHT//2+50)), (3, 20))
+    screen.blit(pygame.transform.scale(load_image("martin.png"), (300, 400)), (WIDTH-250, HEIGHT//2+40))
     font = pygame.font.SysFont('verdana', 35)
     text_coord = 30
     for line in intro_text:
@@ -81,6 +87,7 @@ def rules_menu():
         text_coord += intro_rect.height
         screen.blit(string_rendered, intro_rect)
     font = pygame.font.SysFont('verdana', 17)
+    text_coord += 10
     for line in rules_text:
         string_rendered = font.render(line, 1, (255, 255, 255))
         intro_rect = string_rendered.get_rect()
@@ -89,6 +96,7 @@ def rules_menu():
         intro_rect.x = 10
         text_coord += intro_rect.height
         screen.blit(string_rendered, intro_rect)
+    text_coord += 20
     font = pygame.font.SysFont('verdana', 20)
     for line in main_text:
         string_rendered = font.render(line, 1, (255, 255, 255))
@@ -195,7 +203,6 @@ def main_cycle():
 
 def game_over():
     global running, menu_running, lost_running, screen, WIDTH, HEIGHT, result
-    clear_sprites()
     if result:
         intro_text = ['!ПОБЕДА!']
         fon = pygame.transform.scale(load_image('win_back.png'), (WIDTH, HEIGHT))
@@ -224,6 +231,7 @@ def game_over():
         intro_rect.centerx = WIDTH // 2
         text_coord += intro_rect.height
         screen.blit(string_rendered, intro_rect)
+    clear_sprites()
 
     while lost_running:
         for event in pygame.event.get():
@@ -319,7 +327,7 @@ def bossfight():
             pygame.mixer.music.load('music/loosetheme.mp3')
             pygame.mixer.music.set_volume(0.4)
             pygame.mixer.music.play(loops=-1)
-        if timer//10:
+        if timer // 10:
             m = Bullet(bulletimage, random.randrange(0, WIDTH), 0, 0, 1)
             all_sprites.add(m)
             bad_bullets.add(m)
@@ -345,7 +353,9 @@ def bossfight():
 
 
 def clear_sprites():
-    global all_sprites, mobs, bullets, player
+    global all_sprites, mobs, bullets, player, curscore, result
+    result = False
+    curscore = 0
     all_sprites = pygame.sprite.Group()
     mobs = pygame.sprite.Group()
     bullets = pygame.sprite.Group()
@@ -366,6 +376,7 @@ screen = pygame.display.set_mode((WIDTH, HEIGHT))
 toplayer = pygame.display.set_mode((WIDTH, HEIGHT))
 toplayer.set_alpha(255)
 pygame.display.set_caption("Legend of Crossroads")
+pygame.display.set_icon(pygame.image.load("img/Crossroads.png"))
 clock = pygame.time.Clock()
 
 bgimg = pygame.transform.scale(load_image("bg.png"), (WIDTH, HEIGHT))
