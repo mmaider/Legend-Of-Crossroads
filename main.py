@@ -115,7 +115,7 @@ def rules_menu():
 
 
 def main_cycle():
-    global running, lost_running, bfrunning, timer, curscore
+    global running, lost_running, bfrunning, timer, curscore, penta
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
@@ -127,6 +127,7 @@ def main_cycle():
                 bullets.add(bullet)
                 player.magazine -= 1
     screen.blit(bgimg, (0, 0))
+    blit_alpha(screen, penta, (0, 0), (255*curscore)//20)
     all_sprites.update(player.rect.x, player.rect.y)
 
     hits = pygame.sprite.groupcollide(mobs, bullets, True, True)
@@ -184,7 +185,7 @@ def main_cycle():
     place = text.get_rect(topleft=(10, 55))
     screen.blit(text, place)
 
-    if curscore == 0:
+    if curscore == 20:
         bfrunning = True
 
     pygame.display.flip()
@@ -240,6 +241,7 @@ def game_over():
 def bossfight():
     global running, bfrunning, lost_running, screen, WIDTH, HEIGHT
     screen.blit(bgimg, (0, 0))
+    screen.blit(penta, (0, 0))
     all_sprites = pygame.sprite.Group()
     player.rect.centerx = WIDTH // 2
     player.rect.bottom = HEIGHT
@@ -259,6 +261,7 @@ def bossfight():
                 bfrunning = False
                 running = False
         screen.blit(bgimg, (0, 0))
+        screen.blit(penta, (0, 0))
         all_sprites.update()
         all_sprites.draw(screen)
         pygame.display.flip()
@@ -284,6 +287,8 @@ img_dir = os.path.join(os.path.dirname(__file__), 'img')
 
 pygame.mixer.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
+toplayer = pygame.display.set_mode((WIDTH, HEIGHT))
+toplayer.set_alpha(255)
 pygame.display.set_caption("Floors")
 clock = pygame.time.Clock()
 
@@ -296,6 +301,7 @@ devilhead = pygame.transform.scale(load_image("bosshead.png"), (WIDTH, HEIGHT))
 devilrhand = pygame.transform.scale(load_image("bossrighthand1.png"), (WIDTH, HEIGHT))
 devillhand = pygame.transform.scale(load_image("bosslefthand1.png"), (WIDTH, HEIGHT))
 bulletimage = pygame.transform.scale(load_image("bullet.png"), (20, 30))
+penta = pygame.transform.scale(load_image("penta.png"), (WIDTH, HEIGHT))
 
 all_sprites = pygame.sprite.Group()
 mobs = pygame.sprite.Group()

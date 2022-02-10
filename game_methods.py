@@ -219,7 +219,7 @@ class DevilHand(pygame.sprite.Sprite):
         self.maxangle = 45
 
     def update(self, *args):
-        if abs(self.rot) >= abs(self.maxangle)-1:
+        if abs(self.rot) >= abs(self.maxangle) - 1:
             self.rotspeed *= -1
         self.rot = (self.rot + self.rotspeed) % self.maxangle
         newimage = pygame.transform.rotate(self.imagecopy, self.rot)
@@ -227,7 +227,6 @@ class DevilHand(pygame.sprite.Sprite):
         self.image = newimage
         self.rect = self.image.get_rect()
         self.rect.center = oldcenter
-
 
 
 def load_image(name, colorkey=None):
@@ -255,3 +254,13 @@ def blit_stats(surf, x, y, pct, maxpct, color):
     fill_rect = pygame.Rect(x, y, fill, BAR_HEIGHT)
     pygame.draw.rect(surf, color, fill_rect)
     pygame.draw.rect(surf, WHITE, outline_rect, 2)
+
+
+def blit_alpha(target, source, location, opacity):
+    x = location[0]
+    y = location[1]
+    temp = pygame.Surface((source.get_width(), source.get_height())).convert()
+    temp.blit(target, (-x, -y))
+    temp.blit(source, (0, 0))
+    temp.set_alpha(opacity)
+    target.blit(temp, location)
