@@ -4,10 +4,11 @@ from game_methods import *
 
 
 def main_menu():
-    global running, menu_running, rules_running, screen, WIDTH, HEIGHT
+    global running, menu_running, rules_running, settings_running, screen, WIDTH, HEIGHT, musicvolume
     intro_text = ['THE FLOORS']
     buttons = ['Начать игру']
     rules = ['Правила игры']
+    settings = ['Настройки']
     fon = pygame.transform.scale(load_image('main_back.png'), (WIDTH, HEIGHT))
     screen.blit(fon, (0, 0))
     font = pygame.font.SysFont('verdana', 50)
@@ -21,14 +22,6 @@ def main_menu():
         text_coord += intro_rect.height
         screen.blit(string_rendered, intro_rect)
     font = pygame.font.SysFont('verdana', 20)
-    for line in rules:
-        string_rendered = font.render(line, 1, (0, 0, 0))
-        intro_rect1 = string_rendered.get_rect()
-        text_coord += 10
-        intro_rect1.top = text_coord
-        intro_rect1.centerx = WIDTH // 2
-        text_coord += intro_rect1.height
-        screen.blit(string_rendered, intro_rect1)
     for line in buttons:
         string_rendered = font.render(line, 1, (0, 0, 0))
         intro_rect = string_rendered.get_rect()
@@ -37,6 +30,22 @@ def main_menu():
         intro_rect.centerx = WIDTH // 2
         text_coord += intro_rect.height
         screen.blit(string_rendered, intro_rect)
+    for line in rules:
+        string_rendered = font.render(line, 1, (0, 0, 0))
+        intro_rect1 = string_rendered.get_rect()
+        text_coord += 10
+        intro_rect1.top = text_coord
+        intro_rect1.centerx = WIDTH // 2
+        text_coord += intro_rect1.height
+        screen.blit(string_rendered, intro_rect1)
+    for line in settings:
+        string_rendered = font.render(line, 1, (0, 0, 0))
+        intro_rect2 = string_rendered.get_rect()
+        text_coord += 10
+        intro_rect2.top = text_coord
+        intro_rect2.centerx = WIDTH // 2
+        text_coord += intro_rect2.height
+        screen.blit(string_rendered, intro_rect2)
 
     while menu_running:
         for event in pygame.event.get():
@@ -49,12 +58,98 @@ def main_menu():
                         pos[1] < intro_rect1.bottom):
                     menu_running = False
                     rules_running = True
+                if (pos[0] < intro_rect2.right) and (pos[0] > intro_rect2.left) and (pos[1] > intro_rect2.top) and (
+                        pos[1] < intro_rect2.bottom):
+                    menu_running = False
+                    settings_running = True
                 if (pos[0] < intro_rect.right) and (pos[0] > intro_rect.left) and (pos[1] > intro_rect.top) and (
                         pos[1] < intro_rect.bottom):
                     menu_running = False
                     pygame.mixer.music.load('music/battletheme.mp3')
-                    pygame.mixer.music.set_volume(0.4)
+                    pygame.mixer.music.set_volume(musicvolume)
                     pygame.mixer.music.play(loops=-1)
+        pygame.display.flip()
+        clock.tick(20)
+
+
+def settings():
+    global running, menu_running, settings_running, screen, WIDTH, HEIGHT, musicvolume, soundvolume
+    intro_text = ['Настройки']
+    font = pygame.font.SysFont('verdana', 35)
+    buttons = [font.render('-', 1, (255, 255, 255)), font.render('-', 1, (255, 255, 255)),
+               font.render('+', 1, (255, 255, 255)), font.render('+', 1, (255, 255, 255))]
+    main_text = ['В главное меню']
+    buttonsrect = [buttons[0].get_rect(), buttons[1].get_rect(), buttons[2].get_rect(), buttons[3].get_rect()]
+    while settings_running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                settings_running = False
+                running = False
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                pos = pygame.mouse.get_pos()
+                if (pos[0] < intro_rect.right) and (pos[0] > intro_rect.left) and (pos[1] > intro_rect.top) and (
+                        pos[1] < intro_rect.bottom):
+                    menu_running = True
+                    settings_running = False
+                elif (pos[0] < buttonsrect[0].right) and (pos[0] > buttonsrect[0].left) and (
+                        pos[1] > buttonsrect[0].top) and (pos[1] < buttonsrect[0].bottom) and musicvolume > 0:
+                    musicvolume = round(musicvolume - 0.1, 1)
+                    pygame.mixer.music.set_volume(musicvolume)
+                elif (pos[0] < buttonsrect[2].right) and (pos[0] > buttonsrect[2].left) and (
+                        pos[1] > buttonsrect[2].top) and (pos[1] < buttonsrect[2].bottom) and musicvolume < 1:
+                    musicvolume = round(musicvolume + 0.1, 1)
+                    pygame.mixer.music.set_volume(musicvolume)
+                elif (pos[0] < buttonsrect[1].right) and (pos[0] > buttonsrect[1].left) and (
+                        pos[1] > buttonsrect[1].top) and (pos[1] < buttonsrect[1].bottom) and soundvolume > 0:
+                    soundvolume = round(soundvolume - 0.1, 1)
+                elif (pos[0] < buttonsrect[3].right) and (pos[0] > buttonsrect[3].left) and (
+                        pos[1] > buttonsrect[3].top) and (pos[1] < buttonsrect[3].bottom) and soundvolume < 1:
+                    soundvolume = round(soundvolume + 0.1, 1)
+        rules_text = ['Громкость музыки: ' + str(musicvolume), 'Громкость звуков: ' + str(soundvolume)]
+        fon = pygame.transform.scale(load_image('main_back.png'), (WIDTH, HEIGHT))
+        screen.blit(fon, (0, 0))
+        screen.blit(pygame.transform.scale(load_image("Dialog.png"), (WIDTH - 6, HEIGHT // 2 + 50)), (3, 20))
+        screen.blit(pygame.transform.scale(load_image("martin.png"), (300, 400)), (WIDTH - 250, HEIGHT // 2 + 40))
+        font = pygame.font.SysFont('verdana', 35)
+        text_coord = 30
+        for line in intro_text:
+            string_rendered = font.render(line, 1, (255, 255, 255))
+            intro_rect = string_rendered.get_rect()
+            text_coord += 10
+            intro_rect.top = text_coord
+            intro_rect.centerx = WIDTH // 2
+            text_coord += intro_rect.height
+            screen.blit(string_rendered, intro_rect)
+        text_coord += 10
+        for line in range(len(rules_text)):
+            string_rendered = font.render(rules_text[line], 1, (255, 255, 255))
+            intro_rect = string_rendered.get_rect()
+            text_coord += 10
+            intro_rect.top = text_coord
+            intro_rect.x = 10
+            text_coord += intro_rect.height
+            screen.blit(string_rendered, intro_rect)
+            button_rect = buttons[line].get_rect()
+            button_rect.top = intro_rect.top
+            button_rect.right = intro_rect.right + 30
+            screen.blit(buttons[line], button_rect)
+            buttonsrect[line] = button_rect
+            button1_rect = buttons[line + 2].get_rect()
+            button1_rect.top = button_rect.top
+            button1_rect.right = button_rect.right + 30
+            screen.blit(buttons[line + 2], button1_rect)
+            buttonsrect[line + 2] = button1_rect
+        text_coord += 20
+        font = pygame.font.SysFont('verdana', 20)
+        for line in main_text:
+            string_rendered = font.render(line, 1, (255, 255, 255))
+            intro_rect = string_rendered.get_rect()
+            text_coord += 10
+            intro_rect.top = text_coord
+            intro_rect.centerx = WIDTH // 2
+            text_coord += intro_rect.height
+            screen.blit(string_rendered, intro_rect)
+            font = pygame.font.SysFont('verdana', 20)
         pygame.display.flip()
         clock.tick(20)
 
@@ -74,8 +169,8 @@ def rules_menu():
     main_text = ['В главное меню']
     fon = pygame.transform.scale(load_image('main_back.png'), (WIDTH, HEIGHT))
     screen.blit(fon, (0, 0))
-    screen.blit(pygame.transform.scale(load_image("Dialog.png"), (WIDTH-6, HEIGHT//2+50)), (3, 20))
-    screen.blit(pygame.transform.scale(load_image("martin.png"), (300, 400)), (WIDTH-250, HEIGHT//2+40))
+    screen.blit(pygame.transform.scale(load_image("Dialog.png"), (WIDTH - 6, HEIGHT // 2 + 50)), (3, 20))
+    screen.blit(pygame.transform.scale(load_image("martin.png"), (300, 400)), (WIDTH - 250, HEIGHT // 2 + 40))
     font = pygame.font.SysFont('verdana', 35)
     text_coord = 30
     for line in intro_text:
@@ -123,12 +218,13 @@ def rules_menu():
 
 
 def main_cycle():
-    global running, lost_running, bfrunning, timer, curscore, penta
+    global running, lost_running, bfrunning, timer, curscore, penta, musicvolume, soundvolume
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE and player.magazine > 0:
+                shoot_sound.set_volume(soundvolume)
                 shoot_sound.play()
                 mouse_x, mouse_y = pygame.mouse.get_pos()
                 bullet = player.shoot(bulletimage, mouse_x, mouse_y)
@@ -141,6 +237,7 @@ def main_cycle():
 
     hits = pygame.sprite.groupcollide(mobs, bullets, True, True)
     for hit in hits:
+        exp_sound.set_volume(soundvolume)
         exp_sound.play()
         m = Mob(mobimage, 6, 4)
         all_sprites.add(m)
@@ -149,6 +246,7 @@ def main_cycle():
 
     hits = pygame.sprite.spritecollide(player, mobs, True)
     if hits:
+        beat_sound.set_volume(soundvolume)
         beat_sound.play()
         player.life -= 1
         m = Mob(mobimage, 6, 4)
@@ -175,7 +273,7 @@ def main_cycle():
     if player.life <= 0:
         lost_running = True
         pygame.mixer.music.load('music/loosetheme.mp3')
-        pygame.mixer.music.set_volume(0.4)
+        pygame.mixer.music.set_volume(musicvolume)
         pygame.mixer.music.play(loops=-1)
 
     font = pygame.font.Font(None, 32)
@@ -203,7 +301,7 @@ def main_cycle():
 
 
 def game_over():
-    global running, menu_running, lost_running, screen, WIDTH, HEIGHT, result
+    global running, menu_running, lost_running, screen, WIDTH, HEIGHT, result, musicvolume
     if result:
         intro_text = ['!ПОБЕДА!']
         fon = pygame.transform.scale(load_image('win_back.png'), (WIDTH, HEIGHT))
@@ -246,14 +344,14 @@ def game_over():
                     lost_running = False
                     menu_running = True
                     pygame.mixer.music.load('music/menutheme.mp3')
-                    pygame.mixer.music.set_volume(0.4)
+                    pygame.mixer.music.set_volume(musicvolume)
                     pygame.mixer.music.play(loops=-1)
         pygame.display.flip()
         clock.tick(20)
 
 
 def bossfight():
-    global running, bfrunning, lost_running, screen, WIDTH, HEIGHT, result, timer
+    global running, bfrunning, lost_running, screen, WIDTH, HEIGHT, result, timer, musicvolume, soundvolume
     all_sprites = pygame.sprite.Group()
     bosshead = DevilHead(devilhead)
     bossrhand = DevilHand(devilrhand)
@@ -281,15 +379,16 @@ def bossfight():
     font = pygame.font.Font(None, 50)
     text = font.render("!BOSSFIGHT!", True, WHITE)
     place = text.get_rect(center=(WIDTH // 2, HEIGHT // 2))
+    boss_sound.set_volume(soundvolume)
     boss_sound.play()
     for i in range(1, 3):
         screen.blit(bgimg, (0, 0))
         screen.blit(penta, (0, 0))
         all_sprites.draw(screen)
-        screen.blit(pygame.transform.scale(load_image("heart"+str(3-i)+".png"), (400, 300)), (220, 300))
+        screen.blit(pygame.transform.scale(load_image("heart" + str(3 - i) + ".png"), (400, 300)), (220, 300))
         screen.blit(text, place)
         pygame.display.flip()
-        pygame.time.wait(i*1000)
+        pygame.time.wait(i * 1000)
     while bfrunning:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -297,6 +396,7 @@ def bossfight():
                 running = False
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
+                    shoot_sound.set_volume(soundvolume)
                     shoot_sound.play()
                     mouse_x, mouse_y = pygame.mouse.get_pos()
                     bullet = player.shoot(bulletimage, mouse_x, mouse_y)
@@ -308,10 +408,12 @@ def bossfight():
             player.life -= 1
         hits = pygame.sprite.spritecollide(bosshead, bullets, False, collided=pygame.sprite.collide_mask)
         for hit in hits:
+            exp_sound.set_volume(soundvolume)
             exp_sound.play()
             bosshead.life -= 1
             hit.kill()
             if bosshead.life <= 0:
+                boss_sound.set_volume(soundvolume)
                 boss_sound.play()
                 for i in range(1, 3):
                     screen.blit(bgimg, (0, 0))
@@ -325,11 +427,12 @@ def bossfight():
                 lost_running = True
                 result = True
                 pygame.mixer.music.load('music/loosetheme.mp3')
-                pygame.mixer.music.set_volume(0.4)
+                pygame.mixer.music.set_volume(musicvolume)
                 pygame.mixer.music.play(loops=-1)
                 break
         hits = pygame.sprite.spritecollide(player, bad_bullets, False, collided=pygame.sprite.collide_mask)
         for hit in hits:
+            beat_sound.set_volume(soundvolume)
             beat_sound.play()
             player.life -= 1
             hit.kill()
@@ -337,7 +440,7 @@ def bossfight():
             bfrunning = False
             lost_running = True
             pygame.mixer.music.load('music/loosetheme.mp3')
-            pygame.mixer.music.set_volume(0.4)
+            pygame.mixer.music.set_volume(musicvolume)
             pygame.mixer.music.play(loops=-1)
         if timer // 5:
             m = Bullet(bulletimage, random.randrange(0, WIDTH), 0, 0, 1)
@@ -389,7 +492,10 @@ toplayer = pygame.display.set_mode((WIDTH, HEIGHT))
 toplayer.set_alpha(255)
 pygame.display.set_caption("Legend of Crossroads")
 pygame.display.set_icon(pygame.image.load("img/Crossroads.png"))
+
 clock = pygame.time.Clock()
+musicvolume = 0.5
+soundvolume = 0.5
 
 bgimg = pygame.transform.scale(load_image("bg.png"), (WIDTH, HEIGHT))
 playerimage = pygame.transform.scale(load_image("playerimg1.png"), (380, 624))
@@ -421,7 +527,7 @@ healers = pygame.sprite.Group()
 amo = pygame.sprite.Group()
 all_sprites.add(player)
 pygame.mixer.music.load('music/menutheme.mp3')
-pygame.mixer.music.set_volume(0.4)
+pygame.mixer.music.set_volume(musicvolume)
 pygame.mixer.music.play(loops=-1)
 shoot_sound = pygame.mixer.Sound('music/pew.wav')
 exp_sound = pygame.mixer.Sound('music/expl3.wav')
@@ -436,6 +542,7 @@ for i in range(3):
 
 running = True
 menu_running = True
+settings_running = False
 rules_running = False
 lost_running = False
 bfrunning = False
@@ -447,6 +554,8 @@ while running:
         main_menu()
     elif rules_running:
         rules_menu()
+    elif settings_running:
+        settings()
     elif lost_running:
         game_over()
     elif bfrunning:
